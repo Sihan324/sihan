@@ -57,3 +57,22 @@ head(long_data)
 tail(long_data)
 range(long_data$Year)
 dim(long_data)
+
+# 6. Create final analysis table
+
+eda_data <- long_data %>%
+  pivot_wider(
+    names_from = DataSeries,
+    values_from = Value
+  ) %>%
+  rename(
+    TFR = `Total Fertility Rate (TFR)`,
+    TLB = `Total Live-Births`
+  ) %>%
+  arrange(Year)
+
+eda_data
+head(eda_data)
+tail(eda_data)
+dim(eda_data)
+names(eda_data)

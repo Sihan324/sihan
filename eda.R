@@ -76,3 +76,14 @@ head(eda_data)
 tail(eda_data)
 dim(eda_data)
 names(eda_data)
+
+# 7. Create time series objects创建时间序列对象
+
+tlb_ts <- ts(eda_data$TLB, start = 1960, frequency = 1)
+tfr_ts <- ts(eda_data$TFR, start = 1960, frequency = 1)
+
+tlb_ts
+tfr_ts
+start(tlb_ts)
+end(tlb_ts)
+frequency(tlb_ts)

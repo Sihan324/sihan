@@ -29,3 +29,19 @@ series_data
 series_data$DataSeries
 dim(series_data)
 
+
+# 4. Reshape to long format 宽表换长表
+
+series_data_num <- series_data %>%
+  mutate(across(-DataSeries, as.numeric))
+
+long_data <- series_data_num %>%
+  pivot_longer(
+    cols = -DataSeries,
+    names_to = "Year",
+    values_to = "Value"
+  )
+
+long_data
+head(long_data)
+dim(long_data)

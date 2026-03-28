@@ -45,3 +45,15 @@ long_data <- series_data_num %>%
 long_data
 head(long_data)
 dim(long_data)
+
+# 5. Keep years 1960-2024
+
+long_data <- long_data %>%
+  mutate(Year = as.integer(Year)) %>%
+  filter(Year >= 1960, Year <= 2024)
+
+long_data
+head(long_data)
+tail(long_data)
+range(long_data$Year)
+dim(long_data)

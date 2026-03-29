@@ -122,3 +122,19 @@ plot(diff_tfr,
      main = "First Difference of TFR",
      xlab = "Year",
      ylab = "Differenced TFR")
+
+# 10. ACF and PACF of original series
+
+acf(tlb_ts, main = "ACF of TLB")
+pacf(tlb_ts, main = "PACF of TLB")
+
+acf(tfr_ts, main = "ACF of TFR")
+pacf(tfr_ts, main = "PACF of TFR")
+
+# 11. ACF and PACF of differenced series
+
+acf(diff_tlb, main = "ACF of Differenced TLB")
+pacf(diff_tlb, main = "PACF of Differenced TLB")
+
+acf(diff_tfr, main = "ACF of Differenced TFR")
+pacf(diff_tfr, main = "PACF of Differenced TFR")

@@ -103,3 +103,22 @@ plot(tfr_ts,
      main = "Singapore Total Fertility Rate (1960-2024)",
      xlab = "Year",
      ylab = "TFR")
+
+# 9. First differences
+
+diff_tlb <- diff(tlb_ts)
+diff_tfr <- diff(tfr_ts)
+
+plot(diff_tlb,
+     type = "o",
+     pch = 16,
+     main = "First Difference of TLB",
+     xlab = "Year",
+     ylab = "Differenced TLB")
+
+plot(diff_tfr,
+     type = "o",
+     pch = 16,
+     main = "First Difference of TFR",
+     xlab = "Year",
+     ylab = "Differenced TFR")

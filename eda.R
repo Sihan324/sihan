@@ -87,3 +87,19 @@ tfr_ts
 start(tlb_ts)
 end(tlb_ts)
 frequency(tlb_ts)
+
+# 8. Plot original time series
+
+plot(tlb_ts,
+     type = "o",
+     pch = 16,
+     main = "Singapore Total Live Births (1960-2024)",
+     xlab = "Year",
+     ylab = "TLB")
+
+plot(tfr_ts,
+     type = "o",
+     pch = 16,
+     main = "Singapore Total Fertility Rate (1960-2024)",
+     xlab = "Year",
+     ylab = "TFR")

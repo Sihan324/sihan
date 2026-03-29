@@ -241,3 +241,65 @@ ggplot(trend_aug, aes(x = Year, y = .resid)) +
     x = "Year",
     y = "Residual"
   )
+
+# 13. Split into training and test periods 训练集和测试集
+
+train_ts <- eda_ts %>%
+  filter(Year >= 1960, Year <= 2012)
+
+test_ts <- eda_ts %>%
+  filter(Year >= 2013, Year <= 2024)
+
+as_tibble(train_ts) %>%
+  group_by(Series) %>%
+  summarise(
+    start_year = min(Year),
+    end_year = max(Year),
+    n = n()
+  )
+
+as_tibble(test_ts) %>%
+  group_by(Series) %>%
+  summarise(
+    start_year = min(Year),
+    end_year = max(Year),
+    n = n()
+  )
+
+# 14. Candidate forecasting models
+
+fit_models <- train_ts %>%
+  model(
+    lm_cubic = TSLM(Value ~ trend() + I(trend()^2) + I(trend()^3)),
+    arima    = ARIMA(Value),
+    ets      = ETS(Value)
+  )
+
+glance(fit_models)
+
+# 15. Forecasts for the test period
+
+fc <- fit_models %>%
+  forecast(new_data = test_ts)
+
+fc
+
+autoplot(fc, train_ts) +
+  autolayer(test_ts, Value, colour = "black") +
+  facet_wrap(~Series, scales = "free_y", ncol = 1) +
+  labs(
+    title = "Forecasts versus actual observations (2013-2024)",
+    x = "Year",
+    y = NULL
+  )
+
+# 16. Forecast accuracy on the test period
+
+fc_accuracy <- accuracy(fc, test_ts)
+
+fc_accuracy
+
+fc_accuracy %>%
+  as_tibble() %>%
+  select(Series, .model, RMSE, MAE, MAPE) %>%
+  arrange(Series, RMSE)

@@ -10,6 +10,11 @@ library(readr)
 library(dplyr)
 library(ggplot2)
 library(tidyr)
+library(tsibble)
+library(feasts)
+library(fable)
+library(ggtime)
+library(slider)
 
 # 2. Import data
 
@@ -89,6 +94,37 @@ summary(eda_data)
 range(eda_data$Year)
 nrow(eda_data)
 
+# 7. Create tsibble object 
+
+eda_ts <- long_data %>%
+  mutate(
+    Series = case_when(
+      DataSeries == "Total Live-Births" ~ "TLB",
+      DataSeries == "Total Fertility Rate (TFR)" ~ "TFR"
+    )
+  ) %>%
+  select(Year, Series, Value) %>%
+  arrange(Series, Year) %>%
+  as_tsibble(key = Series, index = Year)
+
+eda_ts
+
+index_var(eda_ts)
+key_vars(eda_ts)
+measured_vars(eda_ts)
+scan_gaps(eda_ts)
+
+# 8. Original time series plots 
+
+eda_ts %>%
+  autoplot(Value) +
+  facet_wrap(vars(Series), scales = "free_y", ncol = 1) +
+  labs(
+    title = "Singapore TLB and TFR (1960-2024)",
+    x = "Year",
+    y = NULL
+  )
+
 # 7. Create time series objects创建时间序列对象
 
 tlb_ts <- ts(eda_data$TLB, start = 1960, frequency = 1)
@@ -115,6 +151,46 @@ plot(tfr_ts,
      main = "Singapore Total Fertility Rate (1960-2024)",
      xlab = "Year",
      ylab = "TFR")
+
+# 8.5 Add 5-year moving averages 加5年移动平均
+
+eda_data$TLB_MA5 <- stats::filter(eda_data$TLB, rep(1/5, 5), sides = 2)
+eda_data$TFR_MA5 <- stats::filter(eda_data$TFR, rep(1/5, 5), sides = 2)
+
+plot(eda_data$Year, eda_data$TLB,
+     type = "o",
+     pch = 16,
+     main = "TLB with 5-year Moving Average",
+     xlab = "Year",
+     ylab = "TLB")
+
+lines(eda_data$Year, eda_data$TLB_MA5,
+      lty = 2,
+      lwd = 2)
+
+legend("topright",
+       legend = c("Original TLB", "5-year MA"),
+       pch = c(16, NA),
+       lty = c(1, 2),
+       bty = "n")
+
+
+plot(eda_data$Year, eda_data$TFR,
+     type = "o",
+     pch = 16,
+     main = "TFR with 5-year Moving Average",
+     xlab = "Year",
+     ylab = "TFR")
+
+lines(eda_data$Year, eda_data$TFR_MA5,
+      lty = 2,
+      lwd = 2)
+
+legend("topright",
+       legend = c("Original TFR", "5-year MA"),
+       pch = c(16, NA),
+       lty = c(1, 2),
+       bty = "n")
 
 # 9. First differences 差分
 
@@ -197,6 +273,9 @@ tfr_forecast <- pred_tfr_1$pred
 
 tlb_forecast
 tfr_forecast
+# Convert forecasts to time series objects 转成时间序列对象
+tlb_forecast_ts <- ts(tlb_forecast, start = 2013, frequency = 1)
+tfr_forecast_ts <- ts(tfr_forecast, start = 2013, frequency = 1)
 
 # 16. Forecast accuracy measures 误差
 
@@ -211,37 +290,15 @@ tlb_rmse
 tfr_mae
 tfr_rmse
 
-# 17. Plot actual values and forecasts 对比图
-
-plot(tlb_test,
-     type = "o",
-     pch = 16,
-     ylim = range(c(tlb_test, tlb_forecast)),
-     main = "TLB: Actual vs Forecast (2013-2024)",
-     xlab = "Year",
-     ylab = "TLB")
-
-lines(tlb_forecast,
-      type = "o",
-      pch = 1,
-      lty = 2)
-
-legend("topright",
-       legend = c("Actual", "Forecast"),
-       pch = c(16, 1),
-       lty = c(1, 2),
-       bty = "n")
-
-
 plot(tfr_test,
      type = "o",
      pch = 16,
-     ylim = range(c(tfr_test, tfr_forecast)),
+     ylim = range(c(tfr_test, tfr_forecast_ts)),
      main = "TFR: Actual vs Forecast (2013-2024)",
      xlab = "Year",
      ylab = "TFR")
 
-lines(tfr_forecast,
+lines(tfr_forecast_ts,
       type = "o",
       pch = 1,
       lty = 2)

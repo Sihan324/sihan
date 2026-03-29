@@ -125,186 +125,119 @@ eda_ts %>%
     y = NULL
   )
 
-# 7. Create time series objects创建时间序列对象
+# 8.5 Moving average smoothers 
 
-tlb_ts <- ts(eda_data$TLB, start = 1960, frequency = 1)
-tfr_ts <- ts(eda_data$TFR, start = 1960, frequency = 1)
+eda_smooth <- eda_ts %>%
+  group_by(Series) %>%
+  mutate(
+    MA3 = slider::slide_dbl(Value, mean, .before = 1, .after = 1, .complete = TRUE),
+    MA5 = slider::slide_dbl(Value, mean, .before = 2, .after = 2, .complete = TRUE)
+  ) %>%
+  ungroup()
 
-tlb_ts
-tfr_ts
-start(tlb_ts)
-end(tlb_ts)
-frequency(tlb_ts)
+ggplot(eda_smooth, aes(x = Year, y = Value)) +
+  geom_line() +
+  geom_line(aes(y = MA3), linetype = 2, linewidth = 0.8) +
+  geom_line(aes(y = MA5), linewidth = 0.8) +
+  facet_wrap(~Series, scales = "free_y", ncol = 1) +
+  labs(
+    title = "Time series with moving average smoothers",
+    x = "Year",
+    y = NULL
+  )
 
-# 8. Plot original time series 原始
+# 9. ACF and PACF of original series 
 
-plot(tlb_ts,
-     type = "o",
-     pch = 16,
-     main = "Singapore Total Live Births (1960-2024)",
-     xlab = "Year",
-     ylab = "TLB")
+eda_ts %>%
+  filter(Series == "TLB") %>%
+  ACF(Value) %>%
+  autoplot() +
+  labs(title = "ACF of TLB")
 
-plot(tfr_ts,
-     type = "o",
-     pch = 16,
-     main = "Singapore Total Fertility Rate (1960-2024)",
-     xlab = "Year",
-     ylab = "TFR")
+eda_ts %>%
+  filter(Series == "TLB") %>%
+  PACF(Value) %>%
+  autoplot() +
+  labs(title = "PACF of TLB")
 
-# 8.5 Add 5-year moving averages 加5年移动平均
+eda_ts %>%
+  filter(Series == "TFR") %>%
+  ACF(Value) %>%
+  autoplot() +
+  labs(title = "ACF of TFR")
 
-eda_data$TLB_MA5 <- stats::filter(eda_data$TLB, rep(1/5, 5), sides = 2)
-eda_data$TFR_MA5 <- stats::filter(eda_data$TFR, rep(1/5, 5), sides = 2)
+eda_ts %>%
+  filter(Series == "TFR") %>%
+  PACF(Value) %>%
+  autoplot() +
+  labs(title = "PACF of TFR")
 
-plot(eda_data$Year, eda_data$TLB,
-     type = "o",
-     pch = 16,
-     main = "TLB with 5-year Moving Average",
-     xlab = "Year",
-     ylab = "TLB")
+# 10. First differencing 
 
-lines(eda_data$Year, eda_data$TLB_MA5,
-      lty = 2,
-      lwd = 2)
+eda_diff <- eda_ts %>%
+  group_by(Series) %>%
+  mutate(
+    D1 = difference(Value)
+  ) %>%
+  ungroup()
 
-legend("topright",
-       legend = c("Original TLB", "5-year MA"),
-       pch = c(16, NA),
-       lty = c(1, 2),
-       bty = "n")
+eda_diff %>%
+  ggplot(aes(x = Year, y = D1)) +
+  geom_line() +
+  facet_wrap(~Series, scales = "free_y", ncol = 1) +
+  labs(
+    title = "First-differenced series",
+    x = "Year",
+    y = NULL
+  )
 
+# 11. ACF and PACF of differenced series 
 
-plot(eda_data$Year, eda_data$TFR,
-     type = "o",
-     pch = 16,
-     main = "TFR with 5-year Moving Average",
-     xlab = "Year",
-     ylab = "TFR")
+eda_diff %>%
+  filter(Series == "TLB", !is.na(D1)) %>%
+  ACF(D1) %>%
+  autoplot() +
+  labs(title = "ACF of differenced TLB")
 
-lines(eda_data$Year, eda_data$TFR_MA5,
-      lty = 2,
-      lwd = 2)
+eda_diff %>%
+  filter(Series == "TLB", !is.na(D1)) %>%
+  PACF(D1) %>%
+  autoplot() +
+  labs(title = "PACF of differenced TLB")
 
-legend("topright",
-       legend = c("Original TFR", "5-year MA"),
-       pch = c(16, NA),
-       lty = c(1, 2),
-       bty = "n")
+eda_diff %>%
+  filter(Series == "TFR", !is.na(D1)) %>%
+  ACF(D1) %>%
+  autoplot() +
+  labs(title = "ACF of differenced TFR")
 
-# 9. First differences 差分
+eda_diff %>%
+  filter(Series == "TFR", !is.na(D1)) %>%
+  PACF(D1) %>%
+  autoplot() +
+  labs(title = "PACF of differenced TFR")
 
-diff_tlb <- diff(tlb_ts)
-diff_tfr <- diff(tfr_ts)
+# 12. Trend model comparison 
 
-plot(diff_tlb,
-     type = "o",
-     pch = 16,
-     main = "First Difference of TLB",
-     xlab = "Year",
-     ylab = "Differenced TLB")
+trend_models <- eda_ts %>%
+  model(
+    lm_linear = TSLM(Value ~ trend()),
+    lm_quad   = TSLM(Value ~ trend() + I(trend()^2)),
+    lm_cubic  = TSLM(Value ~ trend() + I(trend()^2) + I(trend()^3))
+  )
 
-plot(diff_tfr,
-     type = "o",
-     pch = 16,
-     main = "First Difference of TFR",
-     xlab = "Year",
-     ylab = "Differenced TFR")
+tidy(trend_models)
+glance(trend_models)
 
-# 10. ACF and PACF of original series 原序列
+# 12.5 Residual plots from trend models
 
-acf(tlb_ts, main = "ACF of TLB")
-pacf(tlb_ts, main = "PACF of TLB")
+trend_aug <- augment(trend_models)
 
-acf(tfr_ts, main = "ACF of TFR")
-pacf(tfr_ts, main = "PACF of TFR")
-
-# 11. ACF and PACF of differenced series 差分序列
-
-acf(diff_tlb, main = "ACF of Differenced TLB")
-pacf(diff_tlb, main = "PACF of Differenced TLB")
-
-acf(diff_tfr, main = "ACF of Differenced TFR")
-pacf(diff_tfr, main = "PACF of Differenced TFR")
-
-# 12. Split into training and test periods 训练集1960-2012，测试集2013-2024
-
-tlb_train <- window(tlb_ts, end = 2012)
-tlb_test  <- window(tlb_ts, start = 2013)
-
-tfr_train <- window(tfr_ts, end = 2012)
-tfr_test  <- window(tfr_ts, start = 2013)
-
-tlb_train
-tlb_test
-tfr_train
-tfr_test
-
-# 13. Initial candidate models 初步模型
-
-fit_tlb_1 <- arima(tlb_train, order = c(0,1,0))
-fit_tfr_1 <- arima(tfr_train, order = c(1,1,0))
-
-fit_tlb_1
-fit_tfr_1
-
-# 14. Residual diagnostics 残差诊断，Box检验
-
-acf(fit_tlb_1$resid, main = "ACF of Residuals: TLB model")
-pacf(fit_tlb_1$resid, main = "PACF of Residuals: TLB model")
-
-acf(fit_tfr_1$resid, main = "ACF of Residuals: TFR model")
-pacf(fit_tfr_1$resid, main = "PACF of Residuals: TFR model")
-Box.test(fit_tlb_1$resid, lag = 10, type = "Ljung-Box")
-Box.test(fit_tfr_1$resid, lag = 10, type = "Ljung-Box")
-
-# 15. Preliminary forecasts 预测
-
-pred_tlb_1 <- predict(fit_tlb_1, n.ahead = length(tlb_test))
-pred_tfr_1 <- predict(fit_tfr_1, n.ahead = length(tfr_test))
-
-pred_tlb_1
-pred_tfr_1
-
-# Predicted values
-
-tlb_forecast <- pred_tlb_1$pred
-tfr_forecast <- pred_tfr_1$pred
-
-tlb_forecast
-tfr_forecast
-# Convert forecasts to time series objects 转成时间序列对象
-tlb_forecast_ts <- ts(tlb_forecast, start = 2013, frequency = 1)
-tfr_forecast_ts <- ts(tfr_forecast, start = 2013, frequency = 1)
-
-# 16. Forecast accuracy measures 误差
-
-tlb_mae <- mean(abs(tlb_test - tlb_forecast))
-tlb_rmse <- sqrt(mean((tlb_test - tlb_forecast)^2))
-
-tfr_mae <- mean(abs(tfr_test - tfr_forecast))
-tfr_rmse <- sqrt(mean((tfr_test - tfr_forecast)^2))
-
-tlb_mae
-tlb_rmse
-tfr_mae
-tfr_rmse
-
-plot(tfr_test,
-     type = "o",
-     pch = 16,
-     ylim = range(c(tfr_test, tfr_forecast_ts)),
-     main = "TFR: Actual vs Forecast (2013-2024)",
-     xlab = "Year",
-     ylab = "TFR")
-
-lines(tfr_forecast_ts,
-      type = "o",
-      pch = 1,
-      lty = 2)
-
-legend("topright",
-       legend = c("Actual", "Forecast"),
-       pch = c(16, 1),
-       lty = c(1, 2),
-       bty = "n")
+ggplot(trend_aug, aes(x = Year, y = .resid)) +
+  geom_line() +
+  facet_grid(Series ~ .model, scales = "free_y") +
+  labs(
+    title = "Residuals from linear, quadratic and cubic trend models",
+    x = "Year",
+    y = "Residual"
+  )

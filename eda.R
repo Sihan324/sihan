@@ -30,11 +30,6 @@ series_data <- raw_data %>%
   mutate(DataSeries = trimws(DataSeries)) %>%
   filter(DataSeries %in% c("Total Fertility Rate (TFR)", "Total Live-Births"))
 
-series_data
-series_data$DataSeries
-dim(series_data)
-
-
 # 4. Reshape to long format 宽表换长表
 
 series_data_num <- series_data %>%
@@ -46,10 +41,6 @@ long_data <- series_data_num %>%
     names_to = "Year",
     values_to = "Value"
   )
-
-long_data
-head(long_data)
-dim(long_data)
 
 # 5. Keep years 1960-2024
 
@@ -274,8 +265,6 @@ fit_models <- train_ts %>%
     arima    = ARIMA(Value),
     ets      = ETS(Value)
   )
-
-glance(fit_models)
 
 # 15. Forecasts for the test period
 

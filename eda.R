@@ -77,6 +77,18 @@ tail(eda_data)
 dim(eda_data)
 names(eda_data)
 
+# 6.5 Data checking 数据检查
+
+sum(is.na(eda_data$TLB))
+sum(is.na(eda_data$TFR))
+
+sum(duplicated(eda_data$Year))
+
+summary(eda_data)
+
+range(eda_data$Year)
+nrow(eda_data)
+
 # 7. Create time series objects创建时间序列对象
 
 tlb_ts <- ts(eda_data$TLB, start = 1960, frequency = 1)
@@ -199,3 +211,43 @@ tlb_rmse
 tfr_mae
 tfr_rmse
 
+# 17. Plot actual values and forecasts 对比图
+
+plot(tlb_test,
+     type = "o",
+     pch = 16,
+     ylim = range(c(tlb_test, tlb_forecast)),
+     main = "TLB: Actual vs Forecast (2013-2024)",
+     xlab = "Year",
+     ylab = "TLB")
+
+lines(tlb_forecast,
+      type = "o",
+      pch = 1,
+      lty = 2)
+
+legend("topright",
+       legend = c("Actual", "Forecast"),
+       pch = c(16, 1),
+       lty = c(1, 2),
+       bty = "n")
+
+
+plot(tfr_test,
+     type = "o",
+     pch = 16,
+     ylim = range(c(tfr_test, tfr_forecast)),
+     main = "TFR: Actual vs Forecast (2013-2024)",
+     xlab = "Year",
+     ylab = "TFR")
+
+lines(tfr_forecast,
+      type = "o",
+      pch = 1,
+      lty = 2)
+
+legend("topright",
+       legend = c("Actual", "Forecast"),
+       pch = c(16, 1),
+       lty = c(1, 2),
+       bty = "n")

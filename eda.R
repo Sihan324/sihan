@@ -88,7 +88,7 @@ start(tlb_ts)
 end(tlb_ts)
 frequency(tlb_ts)
 
-# 8. Plot original time series
+# 8. Plot original time series 原始
 
 plot(tlb_ts,
      type = "o",
@@ -104,7 +104,7 @@ plot(tfr_ts,
      xlab = "Year",
      ylab = "TFR")
 
-# 9. First differences
+# 9. First differences 差分
 
 diff_tlb <- diff(tlb_ts)
 diff_tfr <- diff(tfr_ts)
@@ -123,7 +123,7 @@ plot(diff_tfr,
      xlab = "Year",
      ylab = "Differenced TFR")
 
-# 10. ACF and PACF of original series
+# 10. ACF and PACF of original series 原序列
 
 acf(tlb_ts, main = "ACF of TLB")
 pacf(tlb_ts, main = "PACF of TLB")
@@ -131,10 +131,41 @@ pacf(tlb_ts, main = "PACF of TLB")
 acf(tfr_ts, main = "ACF of TFR")
 pacf(tfr_ts, main = "PACF of TFR")
 
-# 11. ACF and PACF of differenced series
+# 11. ACF and PACF of differenced series 差分序列
 
 acf(diff_tlb, main = "ACF of Differenced TLB")
 pacf(diff_tlb, main = "PACF of Differenced TLB")
 
 acf(diff_tfr, main = "ACF of Differenced TFR")
 pacf(diff_tfr, main = "PACF of Differenced TFR")
+
+# 12. Split into training and test periods 训练集1960-2012，测试集2013-2024
+
+tlb_train <- window(tlb_ts, end = 2012)
+tlb_test  <- window(tlb_ts, start = 2013)
+
+tfr_train <- window(tfr_ts, end = 2012)
+tfr_test  <- window(tfr_ts, start = 2013)
+
+tlb_train
+tlb_test
+tfr_train
+tfr_test
+
+# 13. Initial candidate models 初步模型
+
+fit_tlb_1 <- arima(tlb_train, order = c(0,1,0))
+fit_tfr_1 <- arima(tfr_train, order = c(1,1,0))
+
+fit_tlb_1
+fit_tfr_1
+
+# 14. Residual diagnostics 残差诊断，Box检验
+
+acf(fit_tlb_1$resid, main = "ACF of Residuals: TLB model")
+pacf(fit_tlb_1$resid, main = "PACF of Residuals: TLB model")
+
+acf(fit_tfr_1$resid, main = "ACF of Residuals: TFR model")
+pacf(fit_tfr_1$resid, main = "PACF of Residuals: TFR model")
+Box.test(fit_tlb_1$resid, lag = 10, type = "Ljung-Box")
+Box.test(fit_tfr_1$resid, lag = 10, type = "Ljung-Box")

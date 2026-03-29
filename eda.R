@@ -187,7 +187,13 @@ eda_diff %>%
 
 # 12. Trend model comparison 
 
-trend_models <- eda_ts %>%
+train_ts <- eda_ts %>%
+  filter(Year >= 1960, Year <= 2012)
+
+test_ts <- eda_ts %>%
+  filter(Year >= 2013, Year <= 2024)
+
+trend_models <- train_ts %>%
   model(
     lm_linear = TSLM(Value ~ trend()),
     lm_quad   = TSLM(Value ~ trend() + I(trend()^2)),

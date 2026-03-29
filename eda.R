@@ -303,3 +303,48 @@ fc_accuracy %>%
   as_tibble() %>%
   select(Series, .model, RMSE, MAE, MAPE) %>%
   arrange(Series, RMSE)
+
+# 17. Residual diagnostics for the ETS model 检查模型残差
+
+fit_aug <- augment(fit_models)
+
+fit_aug %>%
+  filter(.model == "ets") %>%
+  ggplot(aes(x = Year, y = .innov)) +
+  geom_line() +
+  facet_wrap(~Series, scales = "free_y", ncol = 1) +
+  labs(
+    title = "Residuals from ETS models",
+    x = "Year",
+    y = "Innovation residuals"
+  )
+
+fit_aug %>%
+  filter(.model == "ets", Series == "TFR") %>%
+  ACF(.innov) %>%
+  autoplot() +
+  labs(title = "ACF of ETS residuals: TFR")
+
+fit_aug %>%
+  filter(.model == "ets", Series == "TLB") %>%
+  ACF(.innov) %>%
+  autoplot() +
+  labs(title = "ACF of ETS residuals: TLB")
+
+# 18. Ljung-Box tests for ETS residuals
+
+ets_resid <- fit_aug %>%
+  filter(.model == "ets") %>%
+  as_tibble()
+
+Box.test(
+  ets_resid$.innov[ets_resid$Series == "TFR"],
+  lag = 10,
+  type = "Ljung-Box"
+)
+
+Box.test(
+  ets_resid$.innov[ets_resid$Series == "TLB"],
+  lag = 10,
+  type = "Ljung-Box"
+)

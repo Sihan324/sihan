@@ -20,10 +20,6 @@ library(slider)
 
 raw_data <- read_csv("BirthsAndFertilityRatesAnnual.csv")
 
-glimpse(raw_data)
-head(raw_data)
-names(raw_data)
-
 # 3. Keep only TFR and TLB
 
 series_data <- raw_data %>%
@@ -48,12 +44,6 @@ long_data <- long_data %>%
   mutate(Year = as.integer(Year)) %>%
   filter(Year >= 1960, Year <= 2024)
 
-long_data
-head(long_data)
-tail(long_data)
-range(long_data$Year)
-dim(long_data)
-
 # 6. Create final analysis table
 
 eda_data <- long_data %>%
@@ -66,12 +56,6 @@ eda_data <- long_data %>%
     TLB = `Total Live-Births`
   ) %>%
   arrange(Year)
-
-eda_data
-head(eda_data)
-tail(eda_data)
-dim(eda_data)
-names(eda_data)
 
 # 6.5 Data checking 数据检查
 
@@ -97,13 +81,6 @@ eda_ts <- long_data %>%
   select(Year, Series, Value) %>%
   arrange(Series, Year) %>%
   as_tsibble(key = Series, index = Year)
-
-eda_ts
-
-index_var(eda_ts)
-key_vars(eda_ts)
-measured_vars(eda_ts)
-scan_gaps(eda_ts)
 
 # 8. Original time series plots 
 
@@ -217,9 +194,6 @@ trend_models <- eda_ts %>%
     lm_cubic  = TSLM(Value ~ trend() + I(trend()^2) + I(trend()^3))
   )
 
-tidy(trend_models)
-glance(trend_models)
-
 # 12.5 Residual plots from trend models
 
 trend_aug <- augment(trend_models)
@@ -241,22 +215,6 @@ train_ts <- eda_ts %>%
 test_ts <- eda_ts %>%
   filter(Year >= 2013, Year <= 2024)
 
-as_tibble(train_ts) %>%
-  group_by(Series) %>%
-  summarise(
-    start_year = min(Year),
-    end_year = max(Year),
-    n = n()
-  )
-
-as_tibble(test_ts) %>%
-  group_by(Series) %>%
-  summarise(
-    start_year = min(Year),
-    end_year = max(Year),
-    n = n()
-  )
-
 # 14. Candidate forecasting models
 
 fit_models <- train_ts %>%
@@ -271,8 +229,6 @@ fit_models <- train_ts %>%
 fc <- fit_models %>%
   forecast(new_data = test_ts)
 
-fc
-
 autoplot(fc, train_ts) +
   autolayer(test_ts, Value, colour = "black") +
   facet_wrap(~Series, scales = "free_y", ncol = 1) +
@@ -285,8 +241,6 @@ autoplot(fc, train_ts) +
 # 16. Forecast accuracy on the test period
 
 fc_accuracy <- accuracy(fc, test_ts)
-
-fc_accuracy
 
 fc_accuracy %>%
   as_tibble() %>%

@@ -169,3 +169,33 @@ acf(fit_tfr_1$resid, main = "ACF of Residuals: TFR model")
 pacf(fit_tfr_1$resid, main = "PACF of Residuals: TFR model")
 Box.test(fit_tlb_1$resid, lag = 10, type = "Ljung-Box")
 Box.test(fit_tfr_1$resid, lag = 10, type = "Ljung-Box")
+
+# 15. Preliminary forecasts 预测
+
+pred_tlb_1 <- predict(fit_tlb_1, n.ahead = length(tlb_test))
+pred_tfr_1 <- predict(fit_tfr_1, n.ahead = length(tfr_test))
+
+pred_tlb_1
+pred_tfr_1
+
+# Predicted values
+
+tlb_forecast <- pred_tlb_1$pred
+tfr_forecast <- pred_tfr_1$pred
+
+tlb_forecast
+tfr_forecast
+
+# 16. Forecast accuracy measures 误差
+
+tlb_mae <- mean(abs(tlb_test - tlb_forecast))
+tlb_rmse <- sqrt(mean((tlb_test - tlb_forecast)^2))
+
+tfr_mae <- mean(abs(tfr_test - tfr_forecast))
+tfr_rmse <- sqrt(mean((tfr_test - tfr_forecast)^2))
+
+tlb_mae
+tlb_rmse
+tfr_mae
+tfr_rmse
+

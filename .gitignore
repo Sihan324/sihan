@@ -1,0 +1,31 @@
+# R session files
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+
+# Quarto / R Markdown render artifacts
+/.quarto/
+*_cache/
+*_files/
+*.html
+*.pdf
+*.docx
+
+# Local temporary renders and extracted course material
+/tmp/
+/zhuying/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Local credentials and environment files
+.Renviron
+.env
+*.token
+*.key
+*.pem
+

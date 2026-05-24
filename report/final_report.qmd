@@ -1,0 +1,49 @@
+---
+title: "Time Series Final Report"
+author: "Sihan Zhuang"
+format:
+  html:
+    toc: true
+    number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r}
+source("../R/00_setup.R")
+```
+
+# Research Question
+
+State the final research question and explain why it requires time series methods.
+
+# Data
+
+Describe the data source, variables, time span, sampling frequency, and any cleaning decisions.
+
+# Exploratory Analysis
+
+Summarise trend, seasonality, cycles, volatility, stationarity, and any transformations suggested by the data.
+
+# Methods
+
+Describe the candidate time series models considered. Include the final model equation and explain the estimation procedure used.
+
+# Results
+
+Present the selected model, parameter estimates, diagnostics, and evidence supporting the model choice.
+
+# Forecasting or Inference
+
+Report the forecast or statistical inference results required by the research question.
+
+# Discussion
+
+Discuss limitations, uncertainty, and whether the selected model answers the research question adequately.
+
+# References
+
+Add references used for data, methods, and model interpretation.
+

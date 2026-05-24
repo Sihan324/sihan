@@ -1,0 +1,34 @@
+---
+title: "Statistical Appendix"
+author: "Sihan Zhuang"
+format:
+  html:
+    toc: true
+    number-sections: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+# Additional Model Details
+
+Use this appendix for extra comments, plots, model equations, and viable candidate models that were tried but not selected.
+
+# Data Processing Details
+
+Document cleaning decisions and any transformations not shown in full in the main report.
+
+# Candidate Models Not Selected
+
+For each viable model:
+
+- state the model equation;
+- report key estimates or information criteria;
+- show residual diagnostics;
+- explain why it was not selected.
+
+# Extra Diagnostics
+
+Include additional ACF, PACF, spectrum, unit-root, residual, characteristic-root, or cross-validation results.
+

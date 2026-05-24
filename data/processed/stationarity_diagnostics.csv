@@ -1,0 +1,5 @@
+series,kpss_stat,kpss_pvalue
+tfr,1.2575120219536553,0.01
+differenced_tfr,0.8563548945424992,0.01
+log_total_live_births,0.9957933555053453,0.01
+differenced_log_total_live_births,0.11362213871415627,0.1

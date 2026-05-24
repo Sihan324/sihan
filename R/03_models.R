@@ -4,7 +4,9 @@ source("R/00_setup.R")
 source("R/01_data_import.R")
 
 model_dir <- file.path("data", "processed", "models")
+diagnostic_figure_dir <- file.path("figures", "model_diagnostics")
 dir.create(model_dir, recursive = TRUE, showWarnings = FALSE)
+dir.create(diagnostic_figure_dir, recursive = TRUE, showWarnings = FALSE)
 
 # Annual data have no within-year seasonality, so the main candidate models are
 # non-seasonal ARIMA models. Total live-births are modelled on the log scale.
@@ -51,6 +53,51 @@ final_birth_model_name <- birth_model_summary$.model[[1]]
 
 final_tfr_model <- tfr_models |> select(all_of(final_tfr_model_name))
 final_birth_model <- birth_models |> select(all_of(final_birth_model_name))
+
+tfr_residuals <- augment(tfr_models) |>
+  filter(.model == final_tfr_model_name)
+
+birth_residuals <- augment(birth_models) |>
+  filter(.model == final_birth_model_name)
+
+tfr_residual_plot <- tfr_residuals |>
+  ggplot(aes(x = year, y = .innov)) +
+  geom_hline(yintercept = 0, colour = "grey60") +
+  geom_line(colour = "#005C53", linewidth = 0.7) +
+  geom_point(colour = "#005C53", size = 1.4) +
+  labs(
+    title = paste("Innovation residuals:", final_tfr_model_name, "for TFR"),
+    x = "Year",
+    y = "Innovation residual"
+  ) +
+  theme_minimal()
+
+birth_residual_plot <- birth_residuals |>
+  ggplot(aes(x = year, y = .innov)) +
+  geom_hline(yintercept = 0, colour = "grey60") +
+  geom_line(colour = "#7A3E00", linewidth = 0.7) +
+  geom_point(colour = "#7A3E00", size = 1.4) +
+  labs(
+    title = paste("Innovation residuals:", final_birth_model_name, "for log live-births"),
+    x = "Year",
+    y = "Innovation residual"
+  ) +
+  theme_minimal()
+
+tfr_residual_acf_plot <- tfr_residuals |>
+  ACF(.innov, lag_max = 20) |>
+  autoplot() +
+  labs(title = paste("Residual ACF:", final_tfr_model_name, "for TFR"))
+
+birth_residual_acf_plot <- birth_residuals |>
+  ACF(.innov, lag_max = 20) |>
+  autoplot() +
+  labs(title = paste("Residual ACF:", final_birth_model_name, "for log live-births"))
+
+ggsave(file.path(diagnostic_figure_dir, "tfr_final_model_residuals.png"), tfr_residual_plot, width = 7, height = 4.5, dpi = 300)
+ggsave(file.path(diagnostic_figure_dir, "birth_final_model_residuals.png"), birth_residual_plot, width = 7, height = 4.5, dpi = 300)
+ggsave(file.path(diagnostic_figure_dir, "tfr_final_model_residual_acf.png"), tfr_residual_acf_plot, width = 7, height = 4.5, dpi = 300)
+ggsave(file.path(diagnostic_figure_dir, "birth_final_model_residual_acf.png"), birth_residual_acf_plot, width = 7, height = 4.5, dpi = 300)
 
 list(
   tfr_model_summary = tfr_model_summary,

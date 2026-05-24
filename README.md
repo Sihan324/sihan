@@ -30,7 +30,14 @@ The local `zhuying/` folder contains course-provided practical and key concept m
 
 1. Install R and the required packages listed in `R/00_setup.R`.
 2. Place any required raw data files in `data/raw/`.
-3. Run the scripts in order:
+3. On Windows, if the username contains non-ASCII characters and package installation fails, use an ASCII R library path:
+
+```powershell
+New-Item -ItemType Directory -Force -Path C:\Rlibs\4.4
+$env:R_LIBS_USER = "C:/Rlibs/4.4"
+```
+
+4. Run the scripts in order:
 
 ```r
 source("R/00_setup.R")
@@ -40,12 +47,23 @@ source("R/03_models.R")
 source("R/04_forecast_evaluation.R")
 ```
 
-4. Render the report:
+Or run the full workflow:
+
+```powershell
+$env:R_LIBS_USER = "C:/Rlibs/4.4"
+$env:LC_ALL = "English_United States.utf8"
+$env:LANG = "English_United States.utf8"
+& "C:\Program Files\R\R-4.4.1\bin\Rscript.exe" R/run_all.R
+```
+
+5. Render the report:
 
 ```bash
 quarto render report/final_report.qmd
 quarto render report/statistical_appendix.qmd
 ```
+
+If `quarto` is not available in the terminal, render the `.qmd` files from RStudio/Positron or install the Quarto CLI.
 
 ## Git workflow
 
@@ -68,4 +86,3 @@ git remote -v
 ```
 
 The email must be `sihan.zhuang@student.adelaide.edu.au`, and the remote must belong to the correct student GitHub account.
-

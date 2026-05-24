@@ -12,24 +12,36 @@ execute:
 ---
 
 ```{r}
-source("../R/00_setup.R")
+if (basename(getwd()) == "report") {
+  setwd("..")
+}
+source("R/00_setup.R")
+source("R/01_data_import.R")
 ```
 
 # Research Question
 
-State the final research question and explain why it requires time series methods.
+How have Singapore's total fertility rate and total live-births evolved over time, and how well can short-horizon time series models forecast these demographic indicators?
 
 # Data
 
-Describe the data source, variables, time span, sampling frequency, and any cleaning decisions.
+The data are annual Singapore births and fertility rates from data.gov.sg and SingStat. The primary series used in this report are total fertility rate (TFR) and total live-births.
 
 # Exploratory Analysis
 
-Summarise trend, seasonality, cycles, volatility, stationarity, and any transformations suggested by the data.
+```{r}
+source("R/02_eda.R")
+```
+
+Summarise trend, cycles, stationarity, and transformations suggested by the data.
 
 # Methods
 
-Describe the candidate time series models considered. Include the final model equation and explain the estimation procedure used.
+```{r}
+source("R/03_models.R")
+```
+
+Annual data have no seasonal frequency, so the main candidate models are non-seasonal ARIMA models. Total live-births are modelled on the log scale to stabilise proportional changes. The appendix reports viable models that were not selected.
 
 # Results
 
@@ -37,7 +49,11 @@ Present the selected model, parameter estimates, diagnostics, and evidence suppo
 
 # Forecasting or Inference
 
-Report the forecast or statistical inference results required by the research question.
+```{r}
+source("R/04_forecast_evaluation.R")
+```
+
+Report forecast accuracy and interpret short-horizon forecast uncertainty.
 
 # Discussion
 
@@ -46,4 +62,3 @@ Discuss limitations, uncertainty, and whether the selected model answers the res
 # References
 
 Add references used for data, methods, and model interpretation.
-

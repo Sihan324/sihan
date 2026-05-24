@@ -12,7 +12,9 @@ required_packages <- c(
   "tidyr",
   "patchwork",
   "forecast",
-  "tseries"
+  "tseries",
+  "jsonlite",
+  "scales"
 )
 
 missing_packages <- required_packages[!vapply(required_packages, requireNamespace, logical(1), quietly = TRUE)]
@@ -29,4 +31,3 @@ invisible(lapply(required_packages, library, character.only = TRUE))
 
 dir.create("data/processed", recursive = TRUE, showWarnings = FALSE)
 dir.create("figures", recursive = TRUE, showWarnings = FALSE)
-

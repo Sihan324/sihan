@@ -15,6 +15,12 @@ execute:
 
 Use this appendix for extra comments, plots, model equations, and viable candidate models that were tried but not selected.
 
+```{r}
+if (basename(getwd()) == "report") {
+  setwd("..")
+}
+```
+
 # Data Processing Details
 
 Document cleaning decisions and any transformations not shown in full in the main report.
@@ -28,7 +34,18 @@ For each viable model:
 - show residual diagnostics;
 - explain why it was not selected.
 
+```{r}
+source("R/03_models.R")
+tfr_model_summary
+birth_model_summary
+```
+
 # Extra Diagnostics
 
 Include additional ACF, PACF, spectrum, unit-root, residual, characteristic-root, or cross-validation results.
 
+```{r}
+source("R/04_forecast_evaluation.R")
+tfr_accuracy
+birth_accuracy
+```

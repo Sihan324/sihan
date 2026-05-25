@@ -48,8 +48,11 @@ readr::write_csv(birth_model_coefficients, file.path(model_dir, "birth_model_coe
 readr::write_csv(tfr_residual_tests, file.path(model_dir, "tfr_residual_ljung_box.csv"))
 readr::write_csv(birth_residual_tests, file.path(model_dir, "birth_residual_ljung_box.csv"))
 
-final_tfr_model_name <- tfr_model_summary$.model[[1]]
-final_birth_model_name <- birth_model_summary$.model[[1]]
+# The AICc-best TFR model and the forecast-best TFR model are different.
+# For the report diagnostics, use the forecast-focused TFR model identified in
+# the holdout evaluation, while retaining AICc tables for comparison.
+final_tfr_model_name <- "arima_drift"
+final_birth_model_name <- "arima_with_tfr"
 
 final_tfr_model <- tfr_models |> select(all_of(final_tfr_model_name))
 final_birth_model <- birth_models |> select(all_of(final_birth_model_name))

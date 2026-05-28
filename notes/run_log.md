@@ -43,3 +43,5 @@ Report update:
 - Clarified that holdout live-birth accuracy for `arima_with_tfr` uses known test-period TFR values.
 - Added final-report wording to avoid interpreting the TFR coefficient as causal.
 - Added appendix guidance that future live-birth forecasts should use either forecast TFR values or TFR scenarios.
+- Added a model-selection summary table to the final report.
+- Added an appendix note explaining the decision rule across AICc, residual diagnostics, and holdout RMSE.

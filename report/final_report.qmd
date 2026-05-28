@@ -86,6 +86,13 @@ For log total live-births, the model using TFR as an explanatory variable has th
 
 However, the residual diagnostic result for the TFR-explanatory model is not perfect. Its Ljung-Box p-value is 0.0185, suggesting remaining serial dependence in the residuals. This means the model is useful, but not a complete final explanation of the birth series. This point is important for the discussion and motivates further model refinement in the appendix.
 
+The current model choices are summarised below. The table separates the preferred reporting model from the main reason for selection, because the best model depends on whether the goal is in-sample fit, residual adequacy, or forecast accuracy.
+
+| Series | Preferred model | Main basis for selection | Diagnostic caveat | Interpretation |
+|---|---|---|---|---|
+| TFR | ARIMA with drift | Lowest ten-year holdout RMSE, 0.0281 | AICc is slightly worse than `arima_auto` | Best current short-horizon forecasting option for fertility |
+| Log total live-births | ARIMA errors with TFR regressor | Lowest AICc, -192.53, and lowest conditional holdout RMSE, 0.123 | Ljung-Box p-value 0.0185 indicates residual autocorrelation | Useful explanatory and conditional forecasting model, but not fully adequate |
+
 ![TFR model residuals](../figures/model_diagnostics/tfr_final_model_residuals.png)
 
 ![Birth model residuals](../figures/model_diagnostics/birth_final_model_residuals.png)

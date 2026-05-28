@@ -64,6 +64,17 @@ The TFR candidate models are close by AICc. The automatic ARIMA model has the lo
 
 The live-birth candidate models show a clearer AICc preference. The model with TFR as an explanatory regressor has the lowest AICc by a large margin.
 
+# Model Selection Decision Rule
+
+The final report uses a pragmatic model selection rule rather than a single automatic criterion:
+
+- AICc is used to compare in-sample likelihood-adjusted fit among candidate models.
+- Ljung-Box diagnostics are used to check whether residual autocorrelation remains.
+- Ten-year holdout RMSE is used to judge short-horizon forecasting performance.
+- When the criteria disagree, the selected model is tied to the stated goal and the disagreement is reported rather than hidden.
+
+This is why the TFR discussion reports both the AICc-best automatic ARIMA model and the forecast-best drift model. For live-births, the TFR-regressor model is preferred by AICc and holdout RMSE, but the residual diagnostic caveat remains part of the final interpretation.
+
 # Parameter Estimates
 
 ```{r}

@@ -120,6 +120,17 @@ birth_accuracy
 
 For TFR, the drift model is clearly best by RMSE. This is why it is used as the forecast-focused TFR model in the main report. For log live-births, the TFR explanatory model is best by RMSE, although the residual diagnostics indicate that it should be refined further.
 
+# Conditional Forecasting Note
+
+The live-birth model with TFR is evaluated with `forecast(new_data = test_data |> select(year, tfr))`. This means that the test-period TFR values are supplied to the model. The evaluation is therefore conditional on known TFR rather than a fully independent future forecast of live-births.
+
+This is still a useful comparison because it checks whether TFR improves the live-birth model after allowing for ARIMA errors. For a genuine future forecast, the workflow should either:
+
+- first forecast TFR and pass those forecast values into the live-birth model; or
+- construct low, medium and high TFR scenarios and report scenario-based birth forecasts.
+
+The main report therefore describes the TFR model as an informative explanatory and conditional forecasting model, not as a complete standalone demographic forecast.
+
 # Models Not Selected
 
 The following models remain useful but are not the current preferred forecast models:

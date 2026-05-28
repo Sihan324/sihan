@@ -72,6 +72,8 @@ For TFR, the candidate set includes automatic ARIMA selection, an ARIMA model wi
 
 where \(n_t\) follows an ARIMA error process. This model is useful because it directly tests whether TFR helps explain annual live-birth levels, while still allowing serially correlated model errors.
 
+For the live-birth model, the holdout evaluation is a conditional forecast exercise because the forecast step supplies the observed TFR values in the test period. This is useful for measuring whether TFR contains explanatory information for live-births, but a real future forecast would need either a separate forecast of TFR or explicit TFR scenarios.
+
 # Results
 
 ```{r}
@@ -100,6 +102,8 @@ For TFR, the holdout results differ from the AICc ranking. The ARIMA model with 
 
 For log total live-births, the model with TFR as an explanatory variable has the best holdout RMSE, 0.123. The drift model is close at 0.126, while the automatic and no-drift models are worse at 0.167. This agrees with the AICc comparison and supports using TFR as a predictor for the live-birth model, while still noting the residual autocorrelation issue.
 
+This comparison should be interpreted carefully. The birth model with TFR is evaluated using known holdout TFR values, so its accuracy is conditional on that regressor being available. The result therefore supports TFR as an informative demographic predictor, but it does not by itself prove that future live-births can be forecast with the same accuracy unless future TFR is also forecast or assumed through scenarios.
+
 ![TFR forecasts](../figures/forecasts/tfr_forecasts.png)
 
 ![Log births forecasts](../figures/forecasts/log_births_forecasts.png)
@@ -110,7 +114,7 @@ The analysis shows that both TFR and total live-births have persistent long-run 
 
 The most important modelling lesson is that model selection depends on the goal. AICc and holdout accuracy do not select the same TFR model. For explaining the in-sample stochastic structure, the automatic ARIMA model is competitive. For short-horizon forecasting over the recent holdout period, the drift model is much better. For live-births, adding TFR improves both AICc and holdout RMSE, but residual autocorrelation remains, so the model should be interpreted as a useful candidate rather than a fully adequate final model.
 
-The main limitation is that the current models are univariate or use only TFR as one explanatory variable. A richer demographic forecast could include age-specific fertility rates, female population by age group, marriage rates, policy indicators, and structural break terms. These additions would be especially relevant because the TFR stationarity diagnostics suggest persistent structural change.
+The main limitation is that the current models are univariate or use only TFR as one explanatory variable. The TFR coefficient should not be read as a causal estimate because the model omits population composition, migration, marriage rates, policy changes and other demographic drivers. A richer demographic forecast could include age-specific fertility rates, female population by age group, marriage rates, policy indicators, and structural break terms. These additions would be especially relevant because the TFR stationarity diagnostics suggest persistent structural change.
 
 # References
 

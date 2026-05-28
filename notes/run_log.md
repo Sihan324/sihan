@@ -30,3 +30,16 @@ Key preliminary results:
 - By 10-year holdout RMSE, the current best TFR model is `arima_drift`.
 - For log total live-births, the model using TFR as an explanatory variable is best by both AICc and holdout RMSE among the candidate set currently implemented.
 
+## 2026-05-28
+
+Git configuration check:
+
+- Local Git author confirmed as `Sihan Zhuang <sihan.zhuang@student.adelaide.edu.au>`.
+- Repository remote confirmed as the student repository `Sihan324/sihan`.
+
+Report update:
+
+- Added an explicit conditional forecasting caveat for the live-birth model with TFR.
+- Clarified that holdout live-birth accuracy for `arima_with_tfr` uses known test-period TFR values.
+- Added final-report wording to avoid interpreting the TFR coefficient as causal.
+- Added appendix guidance that future live-birth forecasts should use either forecast TFR values or TFR scenarios.

@@ -45,3 +45,10 @@ Report update:
 - Added appendix guidance that future live-birth forecasts should use either forecast TFR values or TFR scenarios.
 - Added a model-selection summary table to the final report.
 - Added an appendix note explaining the decision rule across AICc, residual diagnostics, and holdout RMSE.
+
+## 2026-05-29
+
+Report update:
+
+- Added a `Key Findings` section to the final report.
+- Moved the main numerical results and modelling caveats closer to the start of the report.

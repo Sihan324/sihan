@@ -27,6 +27,17 @@ Singapore has experienced a long decline in fertility, but the total number of b
 
 The question has both an inferential and a forecasting component. The inferential component is to describe the persistence, trend and possible structural change in fertility and births. The forecasting component is to compare simple time series models for short-horizon prediction.
 
+# Key Findings
+
+The analysis gives four main findings:
+
+- Singapore's TFR declined from 5.76 in 1960 to 0.87 in 2025, while total live-births declined from 61,775 to 30,004 over the same period.
+- Both raw series show strong persistence and non-stationarity. Differencing is more successful for log live-births than for TFR, suggesting that fertility contains persistent structural change.
+- For TFR forecasting, the ARIMA model with drift performs best in the ten-year holdout period, with RMSE 0.0281, even though the automatic ARIMA model has slightly better AICc.
+- For log live-births, the model with TFR as an explanatory variable has the best AICc and conditional holdout RMSE, but residual autocorrelation remains and the holdout comparison uses observed TFR values.
+
+The main conclusion is therefore cautious: simple ARIMA models provide a useful short-horizon forecasting baseline, and TFR is informative for live-births, but a complete demographic forecasting model would need additional population and policy variables.
+
 # Data
 
 The data come from the official data.gov.sg dataset `Births And Fertility Rates, Annual`, published through SingStat. The reproducible workflow downloads the dataset through the data.gov.sg API and extracts two annual series:

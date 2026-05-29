@@ -142,6 +142,17 @@ This is still a useful comparison because it checks whether TFR improves the liv
 
 The main report therefore describes the TFR model as an informative explanatory and conditional forecasting model, not as a complete standalone demographic forecast.
 
+# Further Model Development
+
+The current analysis deliberately keeps the candidate model set close to the course material. The remaining diagnostic issues suggest several clear extensions:
+
+- Structural break terms could be added to account for periods where fertility policy, marriage patterns, or demographic composition changed sharply.
+- A state-space or local-level model could allow the underlying fertility level to evolve gradually rather than assuming one fixed ARIMA structure for the whole sample.
+- A two-stage forecast could first forecast TFR and then use the forecast TFR distribution as input to the live-birth model.
+- Scenario forecasts could use low, medium and high TFR paths to show how sensitive live-birth forecasts are to fertility assumptions.
+
+These extensions are not included in the current final model because the report prioritises a reproducible ARIMA workflow with transparent diagnostics. They would be appropriate if the goal were a policy-grade demographic forecast rather than a course project demonstrating time series modelling.
+
 # Models Not Selected
 
 The following models remain useful but are not the current preferred forecast models:

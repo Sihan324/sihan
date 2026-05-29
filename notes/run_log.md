@@ -52,3 +52,5 @@ Report update:
 
 - Added a `Key Findings` section to the final report.
 - Moved the main numerical results and modelling caveats closer to the start of the report.
+- Added appendix guidance on further model development, including structural breaks, state-space models, two-stage forecasts and scenario forecasts.
+- Updated the research plan with remaining polish priorities before final submission.

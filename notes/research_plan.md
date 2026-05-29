@@ -36,8 +36,14 @@ Possible appendix-only alternatives:
 
 - local-level or structural time series model if the ARIMA residuals suggest level shifts;
 - intervention or segmented trend model if key historical policy periods are discussed.
+- scenario-based birth forecasts using low, medium and high TFR paths if the final report needs a stronger forecasting extension.
 
 ## Forecast evaluation
 
 Use the most recent ten years as a holdout set. Compare candidate models by RMSE and residual diagnostics. Keep viable but non-selected models in the statistical appendix.
 
+## Remaining polish priorities
+
+- Render the final report and appendix after Quarto is available.
+- Check that tables and figures fit cleanly in the rendered output.
+- Decide whether to keep scenario forecasts as appendix discussion only or implement them as additional forecasts.

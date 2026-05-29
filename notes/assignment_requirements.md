@@ -48,3 +48,10 @@ These notes summarise the currently available assignment guidance from the cours
 7. Move non-selected viable model details to the statistical appendix.
 8. Render final report and appendix.
 
+## Current completion status
+
+- Repository setup, README, data import, EDA, model fitting, forecast evaluation and report drafts are in place.
+- The current Git history shows multiple staged commits over time using the student identity.
+- The report still needs final rendering and visual inspection before submission.
+- The statistical appendix now documents non-selected model considerations and future model development options.
+- The main remaining risk is formatting in the rendered output, because the terminal environment has not exposed the Quarto CLI.

@@ -127,3 +127,14 @@ git remote -v
 ```
 
 The email must be `sihan.zhuang@student.adelaide.edu.au`, and the remote must belong to the correct student GitHub account.
+
+## Pre-submission checks
+
+Before submitting the final report, run through this checklist:
+
+- rerun `R/run_all.R` so generated tables and figures match the latest scripts;
+- render `report/final_report.qmd` and `report/statistical_appendix.qmd`;
+- confirm the rendered report includes the research question, key findings, model choice, diagnostics, forecast evaluation and limitations;
+- check that all figures referenced in the report exist under `figures/`;
+- check that no passwords, tokens or unrelated course materials are committed;
+- confirm the final commit author is `Sihan Zhuang <sihan.zhuang@student.adelaide.edu.au>`.

@@ -54,3 +54,5 @@ Report update:
 - Moved the main numerical results and modelling caveats closer to the start of the report.
 - Added appendix guidance on further model development, including structural breaks, state-space models, two-stage forecasts and scenario forecasts.
 - Updated the research plan with remaining polish priorities before final submission.
+- Added a README pre-submission checklist for rerunning scripts, rendering reports, checking figures and verifying Git identity.
+- Updated assignment requirement notes with the current completion status and remaining rendering risk.

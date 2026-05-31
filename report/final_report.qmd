@@ -35,6 +35,7 @@ The analysis gives four main findings:
 - Both raw series show strong persistence and non-stationarity. Differencing is more successful for log live-births than for TFR, suggesting that fertility contains persistent structural change.
 - For TFR forecasting, the ARIMA model with drift performs best in the ten-year holdout period, with RMSE 0.0281, even though the automatic ARIMA model has slightly better AICc.
 - For log live-births, the model with TFR as an explanatory variable has the best AICc and conditional holdout RMSE, but residual autocorrelation remains and the holdout comparison uses observed TFR values.
+- Scenario forecasts show that 2035 projected live-births are sensitive to future TFR assumptions, ranging from about 35,157 under the model-trend TFR path to 38,875 under a gradual TFR rebound to 1.10.
 
 The main conclusion is therefore cautious: simple ARIMA models provide a useful short-horizon forecasting baseline, and TFR is informative for live-births, but a complete demographic forecasting model would need additional population and policy variables.
 
@@ -125,6 +126,24 @@ This comparison should be interpreted carefully. The birth model with TFR is eva
 ![TFR forecasts](../figures/forecasts/tfr_forecasts.png)
 
 ![Log births forecasts](../figures/forecasts/log_births_forecasts.png)
+
+# Scenario Forecasts
+
+```{r}
+source("R/05_scenario_forecasts.R")
+```
+
+The conditional birth model can be used for simple scenario analysis by supplying alternative future TFR paths. Three illustrative paths are considered for 2026-2035:
+
+- `model_trend`: the mean TFR path from the forecast-focused ARIMA model.
+- `stabilisation`: TFR remains at the 2025 value of 0.87.
+- `gradual_rebound`: TFR rises gradually to 1.10 by 2035.
+
+These scenarios are not predictions of policy outcomes. They are sensitivity checks showing how the live-birth model responds to different fertility assumptions. Under the model-trend TFR path, the approximate 2035 live-birth forecast is 35,157. If TFR stabilises at 0.87, the corresponding forecast is 37,852. Under a gradual rebound to TFR 1.10, the 2035 forecast is 38,875. The spread of roughly 3,700 births shows why future TFR assumptions matter for demographic forecasting.
+
+![TFR scenario paths](../figures/forecasts/tfr_scenario_paths.png)
+
+![Birth scenario forecasts](../figures/forecasts/birth_scenario_forecasts.png)
 
 # Discussion
 

@@ -142,6 +142,31 @@ This is still a useful comparison because it checks whether TFR improves the liv
 
 The main report therefore describes the TFR model as an informative explanatory and conditional forecasting model, not as a complete standalone demographic forecast.
 
+# Scenario Forecasting Extension
+
+```{r}
+source("R/05_scenario_forecasts.R")
+tfr_scenarios <- readr::read_csv(
+  "data/processed/scenarios/tfr_scenario_paths.csv",
+  show_col_types = FALSE
+)
+birth_scenario_forecasts <- readr::read_csv(
+  "data/processed/scenarios/birth_scenario_forecasts.csv",
+  show_col_types = FALSE
+)
+
+tfr_scenarios
+birth_scenario_forecasts
+```
+
+The scenario workflow uses the same live-birth model with TFR as an explanatory variable, but replaces the observed future TFR values with three constructed paths. The `model_trend` path uses the mean forecast from the selected TFR ARIMA model. The `stabilisation` path keeps TFR fixed at 0.87, the observed 2025 value. The `gradual_rebound` path increases TFR linearly to 1.10 by 2035.
+
+This provides a transparent sensitivity analysis. The 2035 projected live-births are 35,157 under `model_trend`, 37,852 under `stabilisation`, and 38,875 under `gradual_rebound`. These values are approximate because they exponentiate the mean forecast on the log-birth scale.
+
+![TFR scenario paths](../figures/forecasts/tfr_scenario_paths.png)
+
+![Birth scenario forecasts](../figures/forecasts/birth_scenario_forecasts.png)
+
 # Further Model Development
 
 The current analysis deliberately keeps the candidate model set close to the course material. The remaining diagnostic issues suggest several clear extensions:
@@ -149,9 +174,9 @@ The current analysis deliberately keeps the candidate model set close to the cou
 - Structural break terms could be added to account for periods where fertility policy, marriage patterns, or demographic composition changed sharply.
 - A state-space or local-level model could allow the underlying fertility level to evolve gradually rather than assuming one fixed ARIMA structure for the whole sample.
 - A two-stage forecast could first forecast TFR and then use the forecast TFR distribution as input to the live-birth model.
-- Scenario forecasts could use low, medium and high TFR paths to show how sensitive live-birth forecasts are to fertility assumptions.
+- Scenario forecasts can be expanded with policy-informed low, medium and high TFR paths rather than the simple illustrative paths used here.
 
-These extensions are not included in the current final model because the report prioritises a reproducible ARIMA workflow with transparent diagnostics. They would be appropriate if the goal were a policy-grade demographic forecast rather than a course project demonstrating time series modelling.
+These extensions are not part of the core final model because the report prioritises a reproducible ARIMA workflow with transparent diagnostics. They would be appropriate if the goal were a policy-grade demographic forecast rather than a course project demonstrating time series modelling.
 
 # Models Not Selected
 

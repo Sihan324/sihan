@@ -56,3 +56,14 @@ Report update:
 - Updated the research plan with remaining polish priorities before final submission.
 - Added a README pre-submission checklist for rerunning scripts, rendering reports, checking figures and verifying Git identity.
 - Updated assignment requirement notes with the current completion status and remaining rendering risk.
+
+## 2026-05-31
+
+Scenario forecasting update:
+
+- Added `R/05_scenario_forecasts.R` and connected it to `R/run_all.R`.
+- Generated TFR scenario paths and conditional live-birth forecasts for 2026-2035.
+- Added scenario forecast figures to `figures/forecasts/`.
+- Added scenario forecast interpretation to the final report and statistical appendix.
+- Updated README and planning notes to document the new scenario workflow and remaining final-submission checks.
+- Verified the complete workflow with `R/run_all.R` after adding the scenario script.

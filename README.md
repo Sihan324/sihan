@@ -17,6 +17,7 @@ The repository now contains two related stages of work:
 
 - `eda.R`: the original Assignment 1 EDA script from the GitHub repository.
 - `R/`: the reproducible final-report workflow, including data import, exploratory analysis, candidate ARIMA models, residual diagnostics, and forecast evaluation.
+- `R/05_scenario_forecasts.R`: an extension that uses alternative future TFR paths to produce conditional live-birth scenario forecasts.
 
 ## GitHub account
 
@@ -72,6 +73,7 @@ source("R/01_data_import.R")
 source("R/02_eda.R")
 source("R/03_models.R")
 source("R/04_forecast_evaluation.R")
+source("R/05_scenario_forecasts.R")
 ```
 
 Or run the full workflow:
@@ -105,6 +107,18 @@ If `quarto` is not available in the terminal, render the `.qmd` files from RStud
 - ARIMA model with TFR as an explanatory variable for log total live-births
 - residual diagnostics and Ljung-Box tests
 - holdout forecast comparison
+- scenario forecasts for live-births under model-trend, stabilisation, and gradual TFR rebound paths
+
+## Generated scenario outputs
+
+The scenario workflow writes:
+
+- `data/processed/scenarios/tfr_scenario_paths.csv`
+- `data/processed/scenarios/birth_scenario_forecasts.csv`
+- `figures/forecasts/tfr_scenario_paths.png`
+- `figures/forecasts/birth_scenario_forecasts.png`
+
+These are conditional forecasts, not standalone demographic predictions. They show how the selected live-birth model responds when different future TFR paths are supplied.
 
 ## Git workflow
 

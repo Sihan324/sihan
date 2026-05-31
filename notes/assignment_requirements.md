@@ -53,5 +53,5 @@ These notes summarise the currently available assignment guidance from the cours
 - Repository setup, README, data import, EDA, model fitting, forecast evaluation and report drafts are in place.
 - The current Git history shows multiple staged commits over time using the student identity.
 - The report still needs final rendering and visual inspection before submission.
-- The statistical appendix now documents non-selected model considerations and future model development options.
+- The statistical appendix now documents non-selected model considerations, future model development options, and TFR scenario forecasts.
 - The main remaining risk is formatting in the rendered output, because the terminal environment has not exposed the Quarto CLI.

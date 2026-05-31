@@ -46,4 +46,5 @@ Use the most recent ten years as a holdout set. Compare candidate models by RMSE
 
 - Render the final report and appendix after Quarto is available.
 - Check that tables and figures fit cleanly in the rendered output.
-- Decide whether to keep scenario forecasts as appendix discussion only or implement them as additional forecasts.
+- Check whether the scenario forecast section should stay in the main report or be shortened if the final report has a strict word or page limit.
+- If time allows, add population-age-structure variables to move beyond TFR-only conditional birth forecasts.

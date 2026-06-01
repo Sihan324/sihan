@@ -18,6 +18,7 @@ The repository now contains two related stages of work:
 - `eda.R`: the original Assignment 1 EDA script from the GitHub repository.
 - `R/`: the reproducible final-report workflow, including data import, exploratory analysis, candidate ARIMA models, residual diagnostics, and forecast evaluation.
 - `R/05_scenario_forecasts.R`: an extension that uses alternative future TFR paths to produce conditional live-birth scenario forecasts.
+- `R/06_report_tables.R`: a reporting helper that writes compact summary tables used by the final report and appendix.
 
 ## GitHub account
 
@@ -74,6 +75,7 @@ source("R/02_eda.R")
 source("R/03_models.R")
 source("R/04_forecast_evaluation.R")
 source("R/05_scenario_forecasts.R")
+source("R/06_report_tables.R")
 ```
 
 Or run the full workflow:
@@ -120,6 +122,17 @@ The scenario workflow writes:
 
 These are conditional forecasts, not standalone demographic predictions. They show how the selected live-birth model responds when different future TFR paths are supplied.
 
+## Generated report tables
+
+The report-table workflow writes:
+
+- `data/processed/report_tables/data_window_summary.csv`
+- `data/processed/report_tables/model_selection_summary.csv`
+- `data/processed/report_tables/forecast_accuracy_rankings.csv`
+- `data/processed/report_tables/scenario_endpoint_summary.csv`
+
+These tables are used to keep the final report and statistical appendix aligned with the reproducible analysis outputs.
+
 ## Git workflow
 
 Commit work in small logical steps so the history shows regular development:
@@ -151,4 +164,5 @@ Before submitting the final report, run through this checklist:
 - confirm the rendered report includes the research question, key findings, model choice, diagnostics, forecast evaluation and limitations;
 - check that all figures referenced in the report exist under `figures/`;
 - check that no passwords, tokens or unrelated course materials are committed;
-- confirm the final commit author is `Sihan Zhuang <sihan.zhuang@student.adelaide.edu.au>`.
+- confirm the final commit author is `Sihan Zhuang <sihan.zhuang@student.adelaide.edu.au>`;
+- review `notes/final_review_checklist.md`.

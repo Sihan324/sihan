@@ -67,3 +67,13 @@ Scenario forecasting update:
 - Added scenario forecast interpretation to the final report and statistical appendix.
 - Updated README and planning notes to document the new scenario workflow and remaining final-submission checks.
 - Verified the complete workflow with `R/run_all.R` after adding the scenario script.
+
+## 2026-06-01
+
+Report table update:
+
+- Added `R/06_report_tables.R` and connected it to `R/run_all.R`.
+- Generated compact report tables under `data/processed/report_tables/`.
+- Updated the final report and statistical appendix to read generated model-selection and scenario endpoint tables.
+- Added `notes/final_review_checklist.md` for final submission review.
+- Updated README to document the report-table workflow and generated outputs.

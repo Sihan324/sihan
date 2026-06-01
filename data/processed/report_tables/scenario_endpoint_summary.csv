@@ -1,0 +1,4 @@
+scenario,year,tfr_assumption,projected_live_births,difference_from_model_trend
+model_trend,2035,0.233,35157,0
+stabilisation,2035,0.87,37852,2695
+gradual_rebound,2035,1.1,38875,3718

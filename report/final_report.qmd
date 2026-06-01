@@ -98,12 +98,17 @@ For log total live-births, the model using TFR as an explanatory variable has th
 
 However, the residual diagnostic result for the TFR-explanatory model is not perfect. Its Ljung-Box p-value is 0.0185, suggesting remaining serial dependence in the residuals. This means the model is useful, but not a complete final explanation of the birth series. This point is important for the discussion and motivates further model refinement in the appendix.
 
-The current model choices are summarised below. The table separates the preferred reporting model from the main reason for selection, because the best model depends on whether the goal is in-sample fit, residual adequacy, or forecast accuracy.
+The current model choices are summarised below. The generated table separates the preferred reporting model from the main numerical criteria, because the best model depends on whether the goal is in-sample fit, residual adequacy, or forecast accuracy.
 
-| Series | Preferred model | Main basis for selection | Diagnostic caveat | Interpretation |
-|---|---|---|---|---|
-| TFR | ARIMA with drift | Lowest ten-year holdout RMSE, 0.0281 | AICc is slightly worse than `arima_auto` | Best current short-horizon forecasting option for fertility |
-| Log total live-births | ARIMA errors with TFR regressor | Lowest AICc, -192.53, and lowest conditional holdout RMSE, 0.123 | Ljung-Box p-value 0.0185 indicates residual autocorrelation | Useful explanatory and conditional forecasting model, but not fully adequate |
+```{r}
+model_selection_summary <- readr::read_csv(
+  "data/processed/report_tables/model_selection_summary.csv",
+  show_col_types = FALSE
+)
+model_selection_summary
+```
+
+For TFR, the key trade-off is that the drift model is forecast-best even though `arima_auto` is slightly better by AICc. For log total live-births, the TFR-regressor model is the strongest conditional model, but the Ljung-Box p-value remains low enough that it should not be treated as fully adequate.
 
 ![TFR model residuals](../figures/model_diagnostics/tfr_final_model_residuals.png)
 
@@ -140,6 +145,14 @@ The conditional birth model can be used for simple scenario analysis by supplyin
 - `gradual_rebound`: TFR rises gradually to 1.10 by 2035.
 
 These scenarios are not predictions of policy outcomes. They are sensitivity checks showing how the live-birth model responds to different fertility assumptions. Under the model-trend TFR path, the approximate 2035 live-birth forecast is 35,157. If TFR stabilises at 0.87, the corresponding forecast is 37,852. Under a gradual rebound to TFR 1.10, the 2035 forecast is 38,875. The spread of roughly 3,700 births shows why future TFR assumptions matter for demographic forecasting.
+
+```{r}
+scenario_endpoint_summary <- readr::read_csv(
+  "data/processed/report_tables/scenario_endpoint_summary.csv",
+  show_col_types = FALSE
+)
+scenario_endpoint_summary
+```
 
 ![TFR scenario paths](../figures/forecasts/tfr_scenario_paths.png)
 

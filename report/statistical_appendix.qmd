@@ -36,6 +36,11 @@ The final processed table contains 66 annual observations from 1960 to 2025.
 ```{r}
 head(fertility_births)
 tail(fertility_births)
+data_window_summary <- readr::read_csv(
+  "data/processed/report_tables/data_window_summary.csv",
+  show_col_types = FALSE
+)
+data_window_summary
 ```
 
 # Stationarity Diagnostics
@@ -163,6 +168,14 @@ The scenario workflow uses the same live-birth model with TFR as an explanatory 
 
 This provides a transparent sensitivity analysis. The 2035 projected live-births are 35,157 under `model_trend`, 37,852 under `stabilisation`, and 38,875 under `gradual_rebound`. These values are approximate because they exponentiate the mean forecast on the log-birth scale.
 
+```{r}
+scenario_endpoint_summary <- readr::read_csv(
+  "data/processed/report_tables/scenario_endpoint_summary.csv",
+  show_col_types = FALSE
+)
+scenario_endpoint_summary
+```
+
 ![TFR scenario paths](../figures/forecasts/tfr_scenario_paths.png)
 
 ![Birth scenario forecasts](../figures/forecasts/birth_scenario_forecasts.png)
@@ -188,3 +201,21 @@ The following models remain useful but are not the current preferred forecast mo
 - Log live-birth drift and no-drift ARIMA models: useful baselines, but they do not use fertility information directly.
 
 The next modelling step should consider structural breaks or additional regressors, especially for the live-birth model where residual autocorrelation remains.
+
+# Compact Report Tables
+
+The following generated tables are used to keep the final report numbers consistent with the reproducible workflow.
+
+```{r}
+model_selection_summary <- readr::read_csv(
+  "data/processed/report_tables/model_selection_summary.csv",
+  show_col_types = FALSE
+)
+forecast_accuracy_rankings <- readr::read_csv(
+  "data/processed/report_tables/forecast_accuracy_rankings.csv",
+  show_col_types = FALSE
+)
+
+model_selection_summary
+forecast_accuracy_rankings
+```

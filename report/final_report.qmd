@@ -166,6 +166,18 @@ The most important modelling lesson is that model selection depends on the goal.
 
 The main limitation is that the current models are univariate or use only TFR as one explanatory variable. The TFR coefficient should not be read as a causal estimate because the model omits population composition, migration, marriage rates, policy changes and other demographic drivers. A richer demographic forecast could include age-specific fertility rates, female population by age group, marriage rates, policy indicators, and structural break terms. These additions would be especially relevant because the TFR stationarity diagnostics suggest persistent structural change.
 
+# Reproducibility Check
+
+The workflow includes a submission audit script, `R/07_submission_audit.R`, which checks that the main scripts, report files, generated tables and referenced figures are present and non-empty. The current audit found no missing required assets and no broken report figure links.
+
+```{r}
+submission_audit_summary <- readr::read_csv(
+  "data/processed/report_tables/submission_audit_summary.csv",
+  show_col_types = FALSE
+)
+submission_audit_summary
+```
+
 # References
 
 - Singapore Department of Statistics. `Births And Fertility Rates, Annual`, accessed through data.gov.sg.

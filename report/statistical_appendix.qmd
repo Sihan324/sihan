@@ -219,3 +219,28 @@ forecast_accuracy_rankings <- readr::read_csv(
 model_selection_summary
 forecast_accuracy_rankings
 ```
+
+# Submission Asset Audit
+
+The submission audit checks required scripts, reports, processed tables, figures, notes and references. It also parses the image links in the report and appendix to confirm that each linked figure exists.
+
+```{r}
+submission_audit_summary <- readr::read_csv(
+  "data/processed/report_tables/submission_audit_summary.csv",
+  show_col_types = FALSE
+)
+submission_asset_check <- readr::read_csv(
+  "data/processed/report_tables/submission_asset_check.csv",
+  show_col_types = FALSE
+)
+report_figure_links <- readr::read_csv(
+  "data/processed/report_tables/report_figure_links.csv",
+  show_col_types = FALSE
+)
+
+submission_audit_summary
+submission_asset_check
+report_figure_links
+```
+
+The current audit summary reports zero problems for the required asset list and zero problems for report figure links. This does not replace rendering the final documents, but it reduces the risk of submitting a report with missing code, tables or image files.

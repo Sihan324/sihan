@@ -19,6 +19,7 @@ The repository now contains two related stages of work:
 - `R/`: the reproducible final-report workflow, including data import, exploratory analysis, candidate ARIMA models, residual diagnostics, and forecast evaluation.
 - `R/05_scenario_forecasts.R`: an extension that uses alternative future TFR paths to produce conditional live-birth scenario forecasts.
 - `R/06_report_tables.R`: a reporting helper that writes compact summary tables used by the final report and appendix.
+- `R/07_submission_audit.R`: a submission audit that checks required assets and report figure links.
 
 ## GitHub account
 
@@ -76,6 +77,7 @@ source("R/03_models.R")
 source("R/04_forecast_evaluation.R")
 source("R/05_scenario_forecasts.R")
 source("R/06_report_tables.R")
+source("R/07_submission_audit.R")
 ```
 
 Or run the full workflow:
@@ -133,6 +135,16 @@ The report-table workflow writes:
 
 These tables are used to keep the final report and statistical appendix aligned with the reproducible analysis outputs.
 
+## Generated audit outputs
+
+The submission audit writes:
+
+- `data/processed/report_tables/submission_audit_summary.csv`
+- `data/processed/report_tables/submission_asset_check.csv`
+- `data/processed/report_tables/report_figure_links.csv`
+
+The current audit checks required scripts, reports, processed tables, figures, notes and references. It also parses image links in the report and appendix so missing figures are easier to catch before submission.
+
 ## Git workflow
 
 Commit work in small logical steps so the history shows regular development:
@@ -163,6 +175,7 @@ Before submitting the final report, run through this checklist:
 - render `report/final_report.qmd` and `report/statistical_appendix.qmd`;
 - confirm the rendered report includes the research question, key findings, model choice, diagnostics, forecast evaluation and limitations;
 - check that all figures referenced in the report exist under `figures/`;
+- check that `submission_audit_summary.csv` reports zero problems;
 - check that no passwords, tokens or unrelated course materials are committed;
 - confirm the final commit author is `Sihan Zhuang <sihan.zhuang@student.adelaide.edu.au>`;
 - review `notes/final_review_checklist.md`.

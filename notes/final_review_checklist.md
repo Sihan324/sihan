@@ -10,6 +10,7 @@ Use this checklist before submitting the final report and GitHub repository.
 - Rerun `R/run_all.R` from a clean R session.
 - Check that generated CSV files under `data/processed/` match the latest scripts.
 - Check that generated figures under `figures/` match the latest scripts.
+- Check `data/processed/report_tables/submission_audit_summary.csv` and confirm all problem counts are zero.
 - Confirm no passwords, tokens, private files, or course-only materials are tracked.
 
 ## Final Report
@@ -29,6 +30,7 @@ Use this checklist before submitting the final report and GitHub repository.
 - Non-selected viable models are documented.
 - Conditional forecasting and scenario forecasting are clearly labelled.
 - Generated compact tables are included so the reported numbers are traceable.
+- Submission audit tables are included so missing report assets can be checked.
 
 ## Rendering
 

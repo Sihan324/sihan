@@ -77,3 +77,13 @@ Report table update:
 - Updated the final report and statistical appendix to read generated model-selection and scenario endpoint tables.
 - Added `notes/final_review_checklist.md` for final submission review.
 - Updated README to document the report-table workflow and generated outputs.
+
+## 2026-06-02
+
+Submission audit update:
+
+- Added `R/07_submission_audit.R` and connected it to `R/run_all.R`.
+- Generated audit tables under `data/processed/report_tables/`.
+- Confirmed the current audit has zero missing required assets and zero broken report figure links.
+- Added audit results to the final report and statistical appendix.
+- Updated README and final review checklist to include submission audit checks.

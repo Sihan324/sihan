@@ -1,0 +1,14 @@
+report,link,normalized_path,exists,size_bytes,status
+report/final_report.qmd,../figures/eda/tfr_time_series.png,figures/eda/tfr_time_series.png,TRUE,36113,ok
+report/final_report.qmd,../figures/eda/total_live_births_time_series.png,figures/eda/total_live_births_time_series.png,TRUE,40950,ok
+report/final_report.qmd,../figures/eda/indexed_tfr_births.png,figures/eda/indexed_tfr_births.png,TRUE,41963,ok
+report/final_report.qmd,../figures/model_diagnostics/tfr_final_model_residuals.png,figures/model_diagnostics/tfr_final_model_residuals.png,TRUE,44560,ok
+report/final_report.qmd,../figures/model_diagnostics/birth_final_model_residuals.png,figures/model_diagnostics/birth_final_model_residuals.png,TRUE,44839,ok
+report/final_report.qmd,../figures/forecasts/tfr_forecasts.png,figures/forecasts/tfr_forecasts.png,TRUE,43986,ok
+report/final_report.qmd,../figures/forecasts/log_births_forecasts.png,figures/forecasts/log_births_forecasts.png,TRUE,52310,ok
+report/final_report.qmd,../figures/forecasts/tfr_scenario_paths.png,figures/forecasts/tfr_scenario_paths.png,TRUE,40031,ok
+report/final_report.qmd,../figures/forecasts/birth_scenario_forecasts.png,figures/forecasts/birth_scenario_forecasts.png,TRUE,45640,ok
+report/statistical_appendix.qmd,../figures/model_diagnostics/tfr_final_model_residual_acf.png,figures/model_diagnostics/tfr_final_model_residual_acf.png,TRUE,37452,ok
+report/statistical_appendix.qmd,../figures/model_diagnostics/birth_final_model_residual_acf.png,figures/model_diagnostics/birth_final_model_residual_acf.png,TRUE,37403,ok
+report/statistical_appendix.qmd,../figures/forecasts/tfr_scenario_paths.png,figures/forecasts/tfr_scenario_paths.png,TRUE,40031,ok
+report/statistical_appendix.qmd,../figures/forecasts/birth_scenario_forecasts.png,figures/forecasts/birth_scenario_forecasts.png,TRUE,45640,ok

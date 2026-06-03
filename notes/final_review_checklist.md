@@ -40,3 +40,4 @@ Use this checklist before submitting the final report and GitHub repository.
 - Check page or word limits if the course specifies them.
 - Keep scenario forecasts in the appendix only if the main report becomes too long.
 - Review `notes/final_polishing_notes.md` for remaining presentation risks.
+- Review `notes/model_interpretation_caveats.md` for model wording risks.

@@ -24,6 +24,7 @@ These notes separate completed reproducible work from items that still need visu
 - The TFR coefficient is not causal because the model omits population structure, policy indicators and other demographic drivers.
 - The model-trend TFR scenario declines to a very low 2035 value, so it should be presented as a model-implied sensitivity path rather than a policy expectation.
 - Quarto rendering has not been confirmed from the terminal environment, so visual inspection remains essential.
+- Use `notes/model_interpretation_caveats.md` as the final wording guardrail before submission.
 
 ## Submission Priority
 

@@ -95,3 +95,11 @@ Final polishing update:
 - Added `notes/final_polishing_notes.md` to distinguish completed reproducible work from manual submission checks.
 - Documented remaining presentation risks, including Quarto rendering, table widths, report length and conditional forecast wording.
 - Updated README and final review checklist to point to the polishing notes.
+
+## 2026-06-04
+
+Interpretation caveat update:
+
+- Added `notes/model_interpretation_caveats.md` to define safe claims and claims to avoid.
+- Documented recommended wording for conditional forecasts, scenario analysis and non-causal interpretation.
+- Updated README, final polishing notes and final review checklist to reference the caveat document.

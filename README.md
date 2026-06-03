@@ -20,6 +20,7 @@ The repository now contains two related stages of work:
 - `R/05_scenario_forecasts.R`: an extension that uses alternative future TFR paths to produce conditional live-birth scenario forecasts.
 - `R/06_report_tables.R`: a reporting helper that writes compact summary tables used by the final report and appendix.
 - `R/07_submission_audit.R`: a submission audit that checks required assets and report figure links.
+- `notes/final_polishing_notes.md`: a concise list of final manual checks and remaining presentation risks.
 
 ## GitHub account
 
@@ -178,4 +179,5 @@ Before submitting the final report, run through this checklist:
 - check that `submission_audit_summary.csv` reports zero problems;
 - check that no passwords, tokens or unrelated course materials are committed;
 - confirm the final commit author is `Sihan Zhuang <sihan.zhuang@student.adelaide.edu.au>`;
-- review `notes/final_review_checklist.md`.
+- review `notes/final_review_checklist.md`;
+- review `notes/final_polishing_notes.md`.

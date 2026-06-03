@@ -87,3 +87,11 @@ Submission audit update:
 - Confirmed the current audit has zero missing required assets and zero broken report figure links.
 - Added audit results to the final report and statistical appendix.
 - Updated README and final review checklist to include submission audit checks.
+
+## 2026-06-03
+
+Final polishing update:
+
+- Added `notes/final_polishing_notes.md` to distinguish completed reproducible work from manual submission checks.
+- Documented remaining presentation risks, including Quarto rendering, table widths, report length and conditional forecast wording.
+- Updated README and final review checklist to point to the polishing notes.

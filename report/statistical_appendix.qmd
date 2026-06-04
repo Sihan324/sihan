@@ -57,6 +57,30 @@ stationarity_diagnostics
 
 The raw TFR and raw log live-births series have KPSS p-values of 0.01, which is consistent with non-stationarity. Differenced log live-births has p-value 0.10, which is more consistent with stationarity. Differenced TFR still has p-value 0.01, suggesting stronger persistence or structural change.
 
+# Statistical Tests and Estimation Procedures
+
+The KPSS test is used as a stationarity diagnostic. In this context, the test is not used as a mechanical decision rule by itself. It is interpreted together with the time plots and ACF plots. The null hypothesis is level or trend stationarity, so a small p-value indicates that the observed series is not well described as stationary around a fixed deterministic component.
+
+The ARIMA candidates are estimated by the `fable` implementation of `ARIMA()`. Candidate models are compared using AICc because the sample contains 66 annual observations, so the small-sample correction is preferable to using AIC alone. For a model with maximised log-likelihood \(\ell\), effective parameter count \(k\), and sample size \(n\), the criterion is:
+
+\[
+AICc = -2\ell + 2k + \frac{2k(k+1)}{n-k-1}.
+\]
+
+Residual autocorrelation is checked with the Ljung-Box statistic. The null hypothesis is that the residual autocorrelations up to the chosen lag are jointly zero. In this workflow, lag 10 is used as a compact diagnostic for remaining serial dependence:
+
+\[
+Q = n(n+2)\sum_{h=1}^{H}\frac{\hat{\rho}_h^2}{n-h}.
+\]
+
+Forecast accuracy is evaluated with a ten-year holdout sample. RMSE is the main ranking measure because it penalises larger forecast errors and is easy to compare within the same response scale:
+
+\[
+RMSE = \sqrt{\frac{1}{m}\sum_{i=1}^{m}(y_i - \hat{y}_i)^2}.
+\]
+
+These criteria answer different questions. AICc evaluates in-sample likelihood-adjusted fit, the Ljung-Box test checks residual adequacy, and holdout RMSE checks short-horizon predictive performance. The final model discussion therefore reports disagreements among these criteria rather than forcing one criterion to determine every decision.
+
 # Candidate Model Summaries
 
 ```{r}
@@ -99,6 +123,28 @@ birth_model_coefficients
 For the forecast-focused TFR drift model, the AR coefficient is close to one and the MA coefficient is negative. The estimated drift constant is small and not statistically significant at conventional levels. This is one reason the model should be interpreted cautiously even though it performs well in the holdout exercise.
 
 For the live-birth model with TFR as an explanatory variable, the estimated TFR coefficient is 0.116 on the log-birth scale. Holding the ARIMA error structure fixed, higher TFR is associated with higher live-birth levels.
+
+# Model Equations Used in Interpretation
+
+The selected TFR model can be represented as an ARIMA model for the differenced fertility series. In general notation:
+
+\[
+\phi(B)(1-B)TFR_t = c + \theta(B)z_t,
+\]
+
+where \(z_t\) is an innovation process. The drift term is retained for forecasting because this candidate has the best holdout RMSE, even though it is not the AICc-best TFR model.
+
+The selected live-birth model is a regression with ARIMA errors:
+
+\[
+\log(Births_t) = \beta_0 + \beta_1 TFR_t + n_t,
+\]
+
+\[
+\phi(B)(1-B)^d n_t = \theta(B)z_t.
+\]
+
+This equation is the reason the model is described as conditional. Future birth forecasts from this model require future TFR values. Those TFR values can be observed holdout values, separately forecast values, or explicit scenario assumptions.
 
 # Residual Checks
 

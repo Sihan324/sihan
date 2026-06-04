@@ -1,5 +1,5 @@
 asset_type,path,exists,size_bytes,status
-script,R/00_setup.R,TRUE,1232,ok
+script,R/00_setup.R,TRUE,1273,ok
 script,R/01_data_import.R,TRUE,1738,ok
 script,R/02_eda.R,TRUE,3412,ok
 script,R/03_models.R,TRUE,4421,ok
@@ -7,8 +7,8 @@ script,R/04_forecast_evaluation.R,TRUE,2395,ok
 script,R/05_scenario_forecasts.R,TRUE,3236,ok
 script,R/06_report_tables.R,TRUE,4614,ok
 script,R/run_all.R,TRUE,283,ok
-report,report/final_report.qmd,TRUE,15470,ok
-report,report/statistical_appendix.qmd,TRUE,13472,ok
+report,report/final_report.qmd,TRUE,15584,ok
+report,report/statistical_appendix.qmd,TRUE,13586,ok
 processed_table,data/processed/singapore_fertility_births.csv,TRUE,5023,ok
 processed_table,data/processed/stationarity_diagnostics.csv,TRUE,201,ok
 processed_table,data/processed/models/tfr_model_summary.csv,TRUE,383,ok
@@ -36,9 +36,9 @@ figure,figures/forecasts/tfr_forecasts.png,TRUE,43986,ok
 figure,figures/forecasts/log_births_forecasts.png,TRUE,52310,ok
 figure,figures/forecasts/tfr_scenario_paths.png,TRUE,40031,ok
 figure,figures/forecasts/birth_scenario_forecasts.png,TRUE,45640,ok
-note,README.md,TRUE,7490,ok
+note,README.md,TRUE,7926,ok
 note,notes/assignment_requirements.md,TRUE,3440,ok
 note,notes/research_plan.md,TRUE,2021,ok
-note,notes/run_log.md,TRUE,5090,ok
+note,notes/run_log.md,TRUE,5999,ok
 note,notes/final_review_checklist.md,TRUE,2165,ok
 reference,references/data_sources.md,TRUE,578,ok

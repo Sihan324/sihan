@@ -26,7 +26,10 @@ required_packages <- c(
   "forecast",
   "tseries",
   "jsonlite",
-  "scales"
+  "scales",
+  "knitr",
+  "rmarkdown",
+  "htmltools"
 )
 
 missing_packages <- required_packages[!vapply(

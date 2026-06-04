@@ -100,6 +100,16 @@ quarto render report/statistical_appendix.qmd
 
 If `quarto` is not available in the terminal, render the `.qmd` files from RStudio/Positron or install the Quarto CLI.
 
+On this Windows machine, the RStudio bundled Quarto executable can also be used directly:
+
+```powershell
+$env:R_LIBS_USER = "C:/Rlibs/4.4"
+$env:LC_ALL = "English_United States.utf8"
+$env:LANG = "English_United States.utf8"
+& "C:\Program Files\RStudio\resources\app\bin\quarto\bin\quarto.exe" render report/final_report.qmd
+& "C:\Program Files\RStudio\resources\app\bin\quarto\bin\quarto.exe" render report/statistical_appendix.qmd
+```
+
 ## Main analysis currently included
 
 - data cleaning and reshaping

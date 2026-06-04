@@ -12,9 +12,12 @@ execute:
 ---
 
 ```{r}
+project_root <- getwd()
 if (basename(getwd()) == "report") {
-  setwd("..")
+  project_root <- normalizePath("..")
 }
+knitr::opts_knit$set(root.dir = project_root)
+setwd(project_root)
 source("R/00_setup.R")
 source("R/01_data_import.R")
 ```

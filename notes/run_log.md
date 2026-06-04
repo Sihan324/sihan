@@ -113,4 +113,6 @@ Final completion update:
 - Added `scripts/final_submission_check.ps1` to check Git identity, remote, required files, audit status and available rendering tooling.
 - Ran the full `R/run_all.R` workflow successfully after the final report and appendix edits.
 - Ran the final submission check successfully with zero audit problems.
-- Remaining manual task: render the `.qmd` files in RStudio/Positron or another Quarto-enabled environment and visually inspect formatting.
+- Installed the missing render-time R packages `rmarkdown`, `knitr` and `htmltools` into `C:/Rlibs/4.4`, then added them to `R/00_setup.R`.
+- Rendered `report/final_report.qmd` and `report/statistical_appendix.qmd` successfully with the RStudio bundled Quarto executable.
+- Remaining manual task: visually inspect the rendered HTML files and export to the course-required submission format if needed.

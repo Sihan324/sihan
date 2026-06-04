@@ -103,3 +103,14 @@ Interpretation caveat update:
 - Added `notes/model_interpretation_caveats.md` to define safe claims and claims to avoid.
 - Documented recommended wording for conditional forecasts, scenario analysis and non-causal interpretation.
 - Updated README, final polishing notes and final review checklist to reference the caveat document.
+
+## 2026-06-05
+
+Final completion update:
+
+- Added an executive summary and conclusion to the final report.
+- Expanded the statistical appendix with KPSS, AICc, Ljung-Box, RMSE and model-equation details.
+- Added `scripts/final_submission_check.ps1` to check Git identity, remote, required files, audit status and available rendering tooling.
+- Ran the full `R/run_all.R` workflow successfully after the final report and appendix edits.
+- Ran the final submission check successfully with zero audit problems.
+- Remaining manual task: render the `.qmd` files in RStudio/Positron or another Quarto-enabled environment and visually inspect formatting.

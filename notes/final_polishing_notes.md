@@ -28,4 +28,6 @@ These notes separate completed reproducible work from items that still need visu
 
 ## Submission Priority
 
-The next highest-value task is rendering both `.qmd` files and checking the final formatted output. The code and GitHub workflow are now substantially documented; final submission quality depends mostly on presentation, length and formatting.
+The next highest-value task is rendering both `.qmd` files and checking the final formatted output. The code, GitHub workflow, audit checks and interpretation caveats are now substantially documented; final submission quality depends mostly on presentation, length and formatting.
+
+As of 2026-06-05, `R/run_all.R` and `scripts/final_submission_check.ps1` have both passed in the local terminal environment. The terminal still does not expose `quarto` on PATH, so rendering should be completed through RStudio/Positron or another Quarto-enabled environment.

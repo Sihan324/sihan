@@ -27,6 +27,14 @@ Singapore has experienced a long decline in fertility, but the total number of b
 
 The question has both an inferential and a forecasting component. The inferential component is to describe the persistence, trend and possible structural change in fertility and births. The forecasting component is to compare simple time series models for short-horizon prediction.
 
+# Executive Summary
+
+This report uses annual Singapore fertility and live-birth data from 1960 to 2025 to assess long-run demographic change and short-horizon forecasting performance. The analysis applies a reproducible R workflow covering data import, exploratory analysis, stationarity diagnostics, ARIMA model fitting, residual checks, holdout evaluation and scenario forecasting.
+
+The final TFR forecast model is an ARIMA model with drift because it gives the best ten-year holdout forecast accuracy among the current candidates. The final live-birth model uses TFR as an explanatory regressor with ARIMA errors. This model has the strongest in-sample AICc and conditional holdout performance for log live-births, but it is not fully adequate because residual autocorrelation remains. The live-birth forecasts are therefore interpreted as conditional forecasts or scenario forecasts, not as complete standalone demographic forecasts.
+
+Overall, the analysis supports two conclusions. First, Singapore's fertility decline is persistent and structurally important for understanding live-birth dynamics. Second, a simple ARIMA-based workflow is useful for transparent short-horizon forecasting, but policy-grade demographic forecasting would require additional covariates such as age structure, migration, marriage patterns and policy indicators.
+
 # Key Findings
 
 The analysis gives four main findings:
@@ -165,6 +173,14 @@ The analysis shows that both TFR and total live-births have persistent long-run 
 The most important modelling lesson is that model selection depends on the goal. AICc and holdout accuracy do not select the same TFR model. For explaining the in-sample stochastic structure, the automatic ARIMA model is competitive. For short-horizon forecasting over the recent holdout period, the drift model is much better. For live-births, adding TFR improves both AICc and holdout RMSE, but residual autocorrelation remains, so the model should be interpreted as a useful candidate rather than a fully adequate final model.
 
 The main limitation is that the current models are univariate or use only TFR as one explanatory variable. The TFR coefficient should not be read as a causal estimate because the model omits population composition, migration, marriage rates, policy changes and other demographic drivers. A richer demographic forecast could include age-specific fertility rates, female population by age group, marriage rates, policy indicators, and structural break terms. These additions would be especially relevant because the TFR stationarity diagnostics suggest persistent structural change.
+
+# Conclusion
+
+The research question asked how Singapore's TFR and total live-births have evolved over time and how well short-horizon time series models can forecast them. The evidence shows a strong long-run decline in both series, with TFR falling more sharply and persistently than total live-births. The stationarity diagnostics and ACF behaviour indicate that these are highly persistent demographic series rather than short-memory fluctuations around a fixed mean.
+
+For forecasting, the ARIMA drift model is the strongest current TFR model by holdout RMSE. For live-births, the ARIMA-error model with TFR is the best current conditional model, but the remaining residual autocorrelation means it should be treated as a useful baseline rather than a complete final demographic model. The scenario forecasts reinforce this point: projected births in 2035 change materially when different future TFR assumptions are supplied.
+
+The practical implication is that TFR is a useful predictor and interpretive variable, but future work should add demographic structure and policy context before drawing stronger population-planning conclusions. Within the scope of this course assignment, the submitted workflow demonstrates reproducible time series modelling, transparent model comparison and cautious interpretation of forecast uncertainty.
 
 # Reproducibility Check
 

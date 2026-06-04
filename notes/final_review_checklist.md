@@ -7,6 +7,7 @@ Use this checklist before submitting the final report and GitHub repository.
 - Confirm the repository remote is `Sihan324/sihan`.
 - Confirm the Git author is `Sihan Zhuang <sihan.zhuang@student.adelaide.edu.au>`.
 - Confirm the working tree is clean after the final push.
+- Run `scripts/final_submission_check.ps1`.
 - Rerun `R/run_all.R` from a clean R session.
 - Check that generated CSV files under `data/processed/` match the latest scripts.
 - Check that generated figures under `figures/` match the latest scripts.

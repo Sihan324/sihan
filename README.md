@@ -174,6 +174,7 @@ The email must be `sihan.zhuang@student.adelaide.edu.au`, and the remote must be
 Before submitting the final report, run through this checklist:
 
 - rerun `R/run_all.R` so generated tables and figures match the latest scripts;
+- run `powershell -ExecutionPolicy Bypass -File scripts/final_submission_check.ps1`;
 - render `report/final_report.qmd` and `report/statistical_appendix.qmd`;
 - confirm the rendered report includes the research question, key findings, model choice, diagnostics, forecast evaluation and limitations;
 - check that all figures referenced in the report exist under `figures/`;

@@ -1,195 +1,155 @@
-# Time Series Assignment
+# Singapore Fertility and Birth Forecasting
 
-This repository contains reproducible code and report materials for the MATH X313 time series assignment and final report.
+**MATH X313 Time Series Analysis — Assignment 1 (Final Report)**
+University of Adelaide, Semester 1 2026
 
-## Topic
+---
 
-The project studies two annual time series from Singapore:
+## Research Question
 
-- Total Live Births (TLB)
-- Total Fertility Rate (TFR)
+How have Singapore's Total Fertility Rate (TFR) and Total Live Births (TLB) evolved since 1960, and how well can time series models trained on 1960–2012 data forecast the 2013–2024 period?
 
-The initial EDA used data for 1960-2024. The current final-report workflow uses the official data.gov.sg / SingStat API and includes the latest available year in the downloaded dataset.
+---
 
-## Current work
+## Overview
 
-The repository now contains two related stages of work:
+This repository contains all code, data, and report materials for the assignment. The analysis examines two annual demographic time series from Singapore's official statistics:
 
-- `eda.R`: the original Assignment 1 EDA script from the GitHub repository.
-- `R/`: the reproducible final-report workflow, including data import, exploratory analysis, candidate ARIMA models, residual diagnostics, and forecast evaluation.
-- `R/05_scenario_forecasts.R`: an extension that uses alternative future TFR paths to produce conditional live-birth scenario forecasts.
-- `R/06_report_tables.R`: a reporting helper that writes compact summary tables used by the final report and appendix.
-- `R/07_submission_audit.R`: a submission audit that checks required assets and report figure links.
-- `notes/final_polishing_notes.md`: a concise list of final manual checks and remaining presentation risks.
-- `notes/model_interpretation_caveats.md`: wording guardrails for interpreting the fitted models and scenario forecasts.
+- **Total Fertility Rate (TFR)** — children per woman per year
+- **Total Live Births (TLB)** — annual count, modelled on the log scale
 
-## GitHub account
+The workflow is split into two stages matching the assignment structure:
 
-Use the student GitHub account associated with:
+| Stage | Period | Script |
+|---|---|---|
+| Part 1 EDA | 1960–2024 (full series) | `eda.R` |
+| Part 2 Final Report | Train 1960–2012, holdout 2013–2024 | `R/` scripts |
 
-`sihan.zhuang@student.adelaide.edu.au`
+---
 
-Do not push this repository from any other GitHub account. In particular, do not use the Gatsby account for this assignment.
+## Repository Structure
 
-Passwords and access tokens must not be committed to this repository. If authentication is required, use the browser login flow, GitHub Desktop, or a GitHub personal access token stored outside the project directory.
+```
+eda.R                               Part 1 EDA script
+BirthsAndFertilityRatesAnnual.csv   Raw CSV for Part 1 EDA
 
-## Project structure
+R/
+  00_setup.R                        Package installation
+  01_data_import.R                  Download data from data.gov.sg API
+  02_eda.R                          EDA plots and stationarity diagnostics
+  03_models.R                       ARIMA/SARIMA model fitting
+  04_forecast_evaluation.R          Holdout evaluation (2013–2024)
+  05_scenario_forecasts.R           Conditional birth forecasts under TFR scenarios
+  06_report_tables.R                Generate compact tables for the report
+  07_submission_audit.R             Check required figures and assets exist
+  run_all.R                         Run all scripts in order
 
-```text
-eda.R                         Original EDA script from Assignment 1
-BirthsAndFertilityRatesAnnual.csv
-                              Original raw CSV used for Assignment 1 EDA
-R/                            Reproducible final-report R scripts
-data/raw/                     Raw public data downloaded by scripts
-data/processed/               Cleaned data and analysis summary tables
-figures/                      Figures generated for the report
-report/                       Final report and statistical appendix drafts
-references/                   Public data-source notes
-notes/                        Assignment notes, research plan, and run log
+data/
+  raw/                              Raw JSON from data.gov.sg API
+  processed/
+    singapore_fertility_births.csv  Main analysis dataset
+    evaluation/                     Holdout accuracy (RMSE) by model
+    models/                         Coefficient tables, Ljung-Box results
+    report_tables/                  Compact tables referenced in the report
+    scenarios/                      TFR scenario paths and conditional birth forecasts
+
+figures/
+  eda/                              Time series, ACF/PACF, stationarity overview
+  model_diagnostics/                Residual plots, QQ plots
+  forecasts/                        Holdout comparison, scenario forecast figures
+  sarima_*.png                      SARIMA model selection diagnostics
+  aicc_comparison.png               AICc comparison across candidate models
+
+report/
+  final_report.qmd                  Main report (Quarto)
+  statistical_appendix.qmd          Statistical appendix (Quarto)
+
+notes/
+  research_plan.md                  Research question and modelling approach
+  run_log.md                        Development notes by date
+  final_polishing_notes.md          Pre-submission checklist
+
+references/
+  data_sources.md                   Dataset metadata and source URLs
 ```
 
+---
 
-## Reproducing the Assignment 1 EDA
+## Data
 
-1. Download or clone this repository.
-2. Open the folder in RStudio.
-3. Make sure the required packages are installed.
-4. Keep `eda.R` and `BirthsAndFertilityRatesAnnual.csv` in the same folder.
-5. Run `eda.R` from top to bottom.
+The primary dataset is **Births And Fertility Rates, Annual** from the Singapore Department of Statistics, available via data.gov.sg:
 
-## Reproducing the final-report workflow
+- Dataset: https://data.gov.sg/datasets/d_e39eeaeadb571c0d0725ef1eec48d166/view
+- SingStat table: https://tablebuilder.singstat.gov.sg/table/TS/M810091
+- Coverage: 1960–2024 (annual)
 
-1. Install R and the required packages listed in `R/00_setup.R`.
-2. The final-report workflow downloads the raw data from data.gov.sg automatically.
-3. On Windows, if the username contains non-ASCII characters and package installation fails, use an ASCII R library path:
+`R/01_data_import.R` downloads the data automatically and saves the raw JSON to `data/raw/`. The cleaned dataset is at `data/processed/singapore_fertility_births.csv`.
+
+---
+
+## Reproducing the Part 1 EDA
+
+1. Clone the repository.
+2. Open in RStudio.
+3. Keep `eda.R` and `BirthsAndFertilityRatesAnnual.csv` in the same folder.
+4. Run `eda.R` from top to bottom.
+
+---
+
+## Reproducing the Final Report Analysis
+
+**1. Install packages**
+
+```r
+source("R/00_setup.R")
+```
+
+On Windows with non-ASCII characters in the username, set an alternative R library path:
 
 ```powershell
 New-Item -ItemType Directory -Force -Path C:\Rlibs\4.4
 $env:R_LIBS_USER = "C:/Rlibs/4.4"
 ```
 
-4. Run the scripts in order:
+**2. Run the full analysis**
 
 ```r
-source("R/00_setup.R")
-source("R/01_data_import.R")
-source("R/02_eda.R")
-source("R/03_models.R")
-source("R/04_forecast_evaluation.R")
-source("R/05_scenario_forecasts.R")
-source("R/06_report_tables.R")
-source("R/07_submission_audit.R")
+source("R/run_all.R")
 ```
 
-Or run the full workflow:
+Or run scripts `01` through `07` individually in order.
 
-```powershell
-$env:R_LIBS_USER = "C:/Rlibs/4.4"
-$env:LC_ALL = "English_United States.utf8"
-$env:LANG = "English_United States.utf8"
-& "C:\Program Files\R\R-4.4.1\bin\Rscript.exe" R/run_all.R
-```
+**3. Render the report**
 
-5. Render the report:
+From RStudio, open and render `report/final_report.qmd` and `report/statistical_appendix.qmd`. Alternatively, from the terminal:
 
 ```bash
 quarto render report/final_report.qmd
 quarto render report/statistical_appendix.qmd
 ```
 
-If `quarto` is not available in the terminal, render the `.qmd` files from RStudio/Positron or install the Quarto CLI.
+---
 
-On this Windows machine, the RStudio bundled Quarto executable can also be used directly:
+## Modelling Approach
 
-```powershell
-$env:R_LIBS_USER = "C:/Rlibs/4.4"
-$env:LC_ALL = "English_United States.utf8"
-$env:LANG = "English_United States.utf8"
-& "C:\Program Files\RStudio\resources\app\bin\quarto\bin\quarto.exe" render report/final_report.qmd
-& "C:\Program Files\RStudio\resources\app\bin\quarto\bin\quarto.exe" render report/statistical_appendix.qmd
-```
+### TFR
 
-## Main analysis currently included
+Raw TFR is non-stationary by KPSS. ACF/PACF of the first-differenced series show spikes at lags 11–13, motivating both ARIMA and SARIMA candidates. Models compared by AICc and holdout RMSE.
 
-- data cleaning and reshaping
-- time series plots
-- moving averages in the original EDA
-- ACF and PACF plots
-- stationarity diagnostics
-- first differencing and log transformation where appropriate
-- trend and forecasting models in the original EDA
-- ARIMA candidate models for TFR and log total live-births
-- ARIMA model with TFR as an explanatory variable for log total live-births
-- residual diagnostics and Ljung-Box tests
-- holdout forecast comparison
-- scenario forecasts for live-births under model-trend, stabilisation, and gradual TFR rebound paths
+### Total Live Births (log scale)
 
-## Generated scenario outputs
+First-differenced log-TLB is approximately stationary. Candidate models:
 
-The scenario workflow writes:
+1. ARIMA for log-TLB
+2. SARIMA for log-TLB
+3. ARIMAX with TFR as a predictor
 
-- `data/processed/scenarios/tfr_scenario_paths.csv`
-- `data/processed/scenarios/birth_scenario_forecasts.csv`
-- `figures/forecasts/tfr_scenario_paths.png`
-- `figures/forecasts/birth_scenario_forecasts.png`
+The ARIMAX model achieves the best AICc and holdout RMSE in the candidate set. It is a **conditional forecast** — it uses observed or assumed future TFR values as input. The scenario extension in `R/05_scenario_forecasts.R` produces 2026–2035 live-birth projections under three TFR paths (model-trend continuation, stabilisation, gradual rebound).
 
-These are conditional forecasts, not standalone demographic predictions. They show how the selected live-birth model responds when different future TFR paths are supplied.
+Model selection criteria: AICc (in-sample) and RMSE on the 2013–2024 holdout. All selected models are accompanied by residual diagnostics (Ljung-Box test, ACF of residuals, QQ plots). Non-selected viable models are documented in the statistical appendix.
 
-## Generated report tables
+---
 
-The report-table workflow writes:
+## GitHub
 
-- `data/processed/report_tables/data_window_summary.csv`
-- `data/processed/report_tables/model_selection_summary.csv`
-- `data/processed/report_tables/forecast_accuracy_rankings.csv`
-- `data/processed/report_tables/scenario_endpoint_summary.csv`
-
-These tables are used to keep the final report and statistical appendix aligned with the reproducible analysis outputs.
-
-## Generated audit outputs
-
-The submission audit writes:
-
-- `data/processed/report_tables/submission_audit_summary.csv`
-- `data/processed/report_tables/submission_asset_check.csv`
-- `data/processed/report_tables/report_figure_links.csv`
-
-The current audit checks required scripts, reports, processed tables, figures, notes and references. It also parses image links in the report and appendix so missing figures are easier to catch before submission.
-
-## Git workflow
-
-Commit work in small logical steps so the history shows regular development:
-
-- project setup and README
-- data import and cleaning
-- exploratory analysis
-- candidate model fitting
-- residual diagnostics
-- forecast evaluation
-- final report and appendix polishing
-
-Before pushing, verify:
-
-```bash
-git config user.name
-git config user.email
-git remote -v
-```
-
-The email must be `sihan.zhuang@student.adelaide.edu.au`, and the remote must belong to the correct student GitHub account.
-
-## Pre-submission checks
-
-Before submitting the final report, run through this checklist:
-
-- rerun `R/run_all.R` so generated tables and figures match the latest scripts;
-- run `powershell -ExecutionPolicy Bypass -File scripts/final_submission_check.ps1`;
-- render `report/final_report.qmd` and `report/statistical_appendix.qmd`;
-- confirm the rendered report includes the research question, key findings, model choice, diagnostics, forecast evaluation and limitations;
-- check that all figures referenced in the report exist under `figures/`;
-- check that `submission_audit_summary.csv` reports zero problems;
-- check that no passwords, tokens or unrelated course materials are committed;
-- confirm the final commit author is `Sihan Zhuang <sihan.zhuang@student.adelaide.edu.au>`;
-- review `notes/final_review_checklist.md`;
-- review `notes/final_polishing_notes.md`;
-- review `notes/model_interpretation_caveats.md`.
+Repository: https://github.com/Sihan324/sihan

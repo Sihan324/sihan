@@ -1,50 +1,35 @@
 # Research Plan
 
-## Working research question
+## Research question
 
-How have Singapore's total fertility rate and total live-births evolved over time, and how well can short-horizon time series models forecast these demographic indicators?
+How have Singapore's total fertility rate (TFR) and total live births evolved since 1960, and can time series models fit to 1960–2012 data accurately forecast the 2013–2024 period?
 
-## Rationale
+## Motivation
 
-The series are annual demographic time series with strong long-run movement and possible structural changes. This makes them suitable for demonstrating:
-
-- exploratory time series analysis;
-- stationarity assessment and differencing;
-- ARIMA model identification and estimation;
-- residual diagnostics;
-- forecast evaluation using a holdout period.
+Both TFR and total live births (TLB) have declined steadily in Singapore since the 1960s, punctuated by policy changes and structural shifts. Annual demographic data of this kind calls for stationarity assessment, differencing and ARIMA-family models. The holdout design (train on 1960–2012, evaluate on 2013–2024) gives an objective way to compare competing models.
 
 ## Data
 
-Use the official `Births And Fertility Rates, Annual` dataset from data.gov.sg/SingStat.
+Official *Births And Fertility Rates, Annual* dataset from data.gov.sg / SingStat, covering 1960–2024.
 
-The core variables are:
+Variables used:
+- TFR: total fertility rate (children per woman)
+- TLB: total live births (count); analysed on log scale
 
-- `tfr`: Total Fertility Rate (TFR), per female.
-- `total_live_births`: annual total live-births, number.
-- `log_total_live_births`: log transform used for modelling births.
+## Modelling approach
 
-## Candidate models
+- Assess stationarity with KPSS tests on raw and differenced series.
+- Examine ACF and PACF after first differencing (and log transformation for TLB).
+- Fit ARIMA models for TFR and log-TLB; also try SARIMA given spikes at lags 11–13.
+- Fit an ARIMAX model for log-TLB using TFR as a predictor.
+- Compare models by AICc (in-sample) and RMSE on the 2013–2024 holdout.
+- Place non-selected viable models in the statistical appendix.
 
-Primary models:
+## Scenario extension
 
-- ARIMA for TFR.
-- ARIMA for log total live-births.
-- ARIMAX-style model for log live-births using TFR as an explanatory regressor.
+Conditional live-birth forecasts for 2026–2035 under three TFR paths (model-trend continuation, stabilisation, gradual rebound). These are scenario analyses, not standalone demographic predictions.
 
-Possible appendix-only alternatives:
+## Outstanding questions
 
-- local-level or structural time series model if the ARIMA residuals suggest level shifts;
-- intervention or segmented trend model if key historical policy periods are discussed.
-- scenario-based birth forecasts using low, medium and high TFR paths if the final report needs a stronger forecasting extension.
-
-## Forecast evaluation
-
-Use the most recent ten years as a holdout set. Compare candidate models by RMSE and residual diagnostics. Keep viable but non-selected models in the statistical appendix.
-
-## Remaining polish priorities
-
-- Render the final report and appendix after Quarto is available.
-- Check that tables and figures fit cleanly in the rendered output.
-- Check whether the scenario forecast section should stay in the main report or be shortened if the final report has a strict word or page limit.
-- If time allows, add population-age-structure variables to move beyond TFR-only conditional birth forecasts.
+- Whether SARIMA seasonal order (12) improves residual diagnostics enough to justify the extra parameters.
+- Whether to include a brief state-space comparison in the appendix.

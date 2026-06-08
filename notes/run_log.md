@@ -1,118 +1,54 @@
-# Run Log
+# Development Log
 
 ## 2026-05-24
 
-Repository setup:
+- Set up repository; downloaded official Singapore births and fertility data from data.gov.sg.
+- Cleaned data into annual TFR and total live-birth series for 1960–2024.
+- R packages installed to `C:/Rlibs/4.4` (default path has non-ASCII characters).
+- Generated initial EDA figures: time series plots, ACF/PACF, and KPSS stationarity diagnostics.
 
-- Initialised local Git repository on branch `main`.
-- Configured local Git identity as `Sihan Zhuang <sihan.zhuang@student.adelaide.edu.au>`.
-- No Git remote has been configured yet, so nothing has been pushed.
-- Course-provided material in `zhuying/` and temporary PDF renders in `tmp/` are ignored by Git.
-
-R environment:
-
-- R found at `C:/Program Files/R/R-4.4.1/bin/Rscript.exe`.
-- Required packages were installed to `C:/Rlibs/4.4` because the default R user library path contains non-ASCII characters.
-- R scripts were run with `LC_ALL=English_United States.utf8`.
-- Quarto CLI was not found in the terminal PATH.
-
-Analysis completed:
-
-- Downloaded official Singapore births and fertility data from data.gov.sg.
-- Cleaned the data into annual TFR and total live-births series for 1960-2025.
-- Generated EDA figures, ACF figures, stationarity diagnostics, model summaries, residual diagnostics, and forecast evaluation tables.
-
-Key preliminary results:
-
-- KPSS diagnostics suggest raw TFR and log total live-births are non-stationary.
-- First-differenced log total live-births passes KPSS at the reported level; first-differenced TFR remains problematic, suggesting stronger persistence or structural change.
-- By AICc, the current best TFR model is `arima_auto`.
-- By 10-year holdout RMSE, the current best TFR model is `arima_drift`.
-- For log total live-births, the model using TFR as an explanatory variable is best by both AICc and holdout RMSE among the candidate set currently implemented.
+Preliminary results:
+- Raw TFR and log-TLB are non-stationary by KPSS.
+- First-differenced log-TLB passes KPSS; first-differenced TFR still shows persistence.
+- ACF/PACF of differenced series show notable spikes at lags 11, 12, 13 — worth investigating SARIMA.
 
 ## 2026-05-28
 
-Git configuration check:
-
-- Local Git author confirmed as `Sihan Zhuang <sihan.zhuang@student.adelaide.edu.au>`.
-- Repository remote confirmed as the student repository `Sihan324/sihan`.
-
-Report update:
-
-- Added an explicit conditional forecasting caveat for the live-birth model with TFR.
-- Clarified that holdout live-birth accuracy for `arima_with_tfr` uses known test-period TFR values.
-- Added final-report wording to avoid interpreting the TFR coefficient as causal.
-- Added appendix guidance that future live-birth forecasts should use either forecast TFR values or TFR scenarios.
-- Added a model-selection summary table to the final report.
-- Added an appendix note explaining the decision rule across AICc, residual diagnostics, and holdout RMSE.
+- Fitted ARIMA candidates for TFR and log-TLB; `arima_auto` best by AICc for TFR, `arima_drift` best by holdout RMSE.
+- Live-birth model with TFR as regressor best by both AICc and holdout RMSE among the candidate set.
+- Added model-selection summary table and holdout comparison to the report draft.
+- Clarified in the report that the TFR regressor is predictive, not causal.
 
 ## 2026-05-29
 
-Report update:
-
-- Added a `Key Findings` section to the final report.
-- Moved the main numerical results and modelling caveats closer to the start of the report.
-- Added appendix guidance on further model development, including structural breaks, state-space models, two-stage forecasts and scenario forecasts.
-- Updated the research plan with remaining polish priorities before final submission.
-- Added a README pre-submission checklist for rerunning scripts, rendering reports, checking figures and verifying Git identity.
-- Updated assignment requirement notes with the current completion status and remaining rendering risk.
+- Added Key Findings section to `report/final_report.qmd`.
+- Shifted main numerical results earlier in the report structure.
+- Added appendix notes on structural breaks, state-space alternatives, and two-stage forecasting.
 
 ## 2026-05-31
 
-Scenario forecasting update:
-
-- Added `R/05_scenario_forecasts.R` and connected it to `R/run_all.R`.
-- Generated TFR scenario paths and conditional live-birth forecasts for 2026-2035.
-- Added scenario forecast figures to `figures/forecasts/`.
-- Added scenario forecast interpretation to the final report and statistical appendix.
-- Updated README and planning notes to document the new scenario workflow and remaining final-submission checks.
-- Verified the complete workflow with `R/run_all.R` after adding the scenario script.
+- Added `R/05_scenario_forecasts.R`: generates TFR scenario paths and conditional live-birth projections for 2026–2035.
+- Figures written to `figures/forecasts/`; scenario CSVs to `data/processed/scenarios/`.
+- Updated report and appendix with scenario interpretation.
 
 ## 2026-06-01
 
-Report table update:
-
-- Added `R/06_report_tables.R` and connected it to `R/run_all.R`.
-- Generated compact report tables under `data/processed/report_tables/`.
-- Updated the final report and statistical appendix to read generated model-selection and scenario endpoint tables.
-- Added `notes/final_review_checklist.md` for final submission review.
-- Updated README to document the report-table workflow and generated outputs.
+- Added `R/06_report_tables.R`: writes compact summary tables to `data/processed/report_tables/`.
+- Updated report and appendix to reference generated tables.
 
 ## 2026-06-02
 
-Submission audit update:
-
-- Added `R/07_submission_audit.R` and connected it to `R/run_all.R`.
-- Generated audit tables under `data/processed/report_tables/`.
-- Confirmed the current audit has zero missing required assets and zero broken report figure links.
-- Added audit results to the final report and statistical appendix.
-- Updated README and final review checklist to include submission audit checks.
-
-## 2026-06-03
-
-Final polishing update:
-
-- Added `notes/final_polishing_notes.md` to distinguish completed reproducible work from manual submission checks.
-- Documented remaining presentation risks, including Quarto rendering, table widths, report length and conditional forecast wording.
-- Updated README and final review checklist to point to the polishing notes.
-
-## 2026-06-04
-
-Interpretation caveat update:
-
-- Added `notes/model_interpretation_caveats.md` to define safe claims and claims to avoid.
-- Documented recommended wording for conditional forecasts, scenario analysis and non-causal interpretation.
-- Updated README, final polishing notes and final review checklist to reference the caveat document.
+- Added `R/07_submission_audit.R`: checks required scripts, figures, and report figure links.
+- Audit reports zero missing assets.
 
 ## 2026-06-05
 
-Final completion update:
+- Expanded statistical appendix with KPSS, AICc, Ljung-Box, RMSE, and model-equation details.
+- Added executive summary and conclusion to the main report.
+- Installed `rmarkdown`, `knitr`, `htmltools` for Quarto rendering; added to `R/00_setup.R`.
+- Rendered both `.qmd` files successfully with the RStudio bundled Quarto executable.
 
-- Added an executive summary and conclusion to the final report.
-- Expanded the statistical appendix with KPSS, AICc, Ljung-Box, RMSE and model-equation details.
-- Added `scripts/final_submission_check.ps1` to check Git identity, remote, required files, audit status and available rendering tooling.
-- Ran the full `R/run_all.R` workflow successfully after the final report and appendix edits.
-- Ran the final submission check successfully with zero audit problems.
-- Installed the missing render-time R packages `rmarkdown`, `knitr` and `htmltools` into `C:/Rlibs/4.4`, then added them to `R/00_setup.R`.
-- Rendered `report/final_report.qmd` and `report/statistical_appendix.qmd` successfully with the RStudio bundled Quarto executable.
-- Remaining manual task: visually inspect the rendered HTML files and export to the course-required submission format if needed.
+## 2026-06-08
+
+- Final figures and EDA diagnostics updated (SARIMA ACF progression, heatmap, holdout forecast, QQ residuals).
+- Pushed final report sources and all figures to GitHub.

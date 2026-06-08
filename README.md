@@ -48,7 +48,6 @@ references/                   Public data-source notes
 notes/                        Assignment notes, research plan, and run log
 ```
 
-The local `zhuying/` folder contains course-provided practical and key concept materials. It is intentionally excluded from Git because it may contain course materials that should not be published in a public repository.
 
 ## Reproducing the Assignment 1 EDA
 

@@ -12,9 +12,23 @@
 *.pdf
 *.docx
 
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
 # Local temporary renders and extracted course material
 /tmp/
 /zhuying/
+
+# Preview screenshots generated during report review
+sih_*.png
+sv*.png
+toc_*.png
 
 # OS/editor files
 .DS_Store

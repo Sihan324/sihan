@@ -19,7 +19,7 @@ tfr_plot <- fertility_births |>
   labs(
     title = "Singapore total fertility rate",
     x = "Year",
-    y = "TFR per female"
+    y = "Births per woman"
   ) +
   theme_minimal()
 
@@ -31,7 +31,7 @@ births_plot <- fertility_births |>
   labs(
     title = "Singapore total live-births",
     x = "Year",
-    y = "Total live-births"
+    y = "Total live births"
   ) +
   theme_minimal()
 

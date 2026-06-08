@@ -84,13 +84,21 @@ tfr_scenario_plot <- fertility_births |>
     aes(colour = scenario),
     linewidth = 0.8
   ) +
+  scale_colour_discrete(
+    labels = c(
+      gradual_rebound = "Gradual rebound",
+      model_trend = "Model trend",
+      stabilisation = "Stabilisation"
+    )
+  ) +
   labs(
     title = "Alternative TFR scenario paths",
     x = "Year",
-    y = "TFR per female",
+    y = "Births per woman",
     colour = "Scenario"
   ) +
-  theme_minimal()
+  theme_minimal() +
+  theme(legend.position = "bottom")
 
 birth_scenario_plot <- fertility_births |>
   ggplot(aes(x = year, y = total_live_births)) +
@@ -100,13 +108,21 @@ birth_scenario_plot <- fertility_births |>
     aes(y = projected_live_births, colour = scenario),
     linewidth = 0.8
   ) +
+  scale_colour_discrete(
+    labels = c(
+      gradual_rebound = "Gradual rebound",
+      model_trend = "Model trend",
+      stabilisation = "Stabilisation"
+    )
+  ) +
   labs(
     title = "Live-birth forecasts under alternative TFR scenarios",
     x = "Year",
-    y = "Projected total live-births",
+    y = "Projected total live births",
     colour = "Scenario"
   ) +
-  theme_minimal()
+  theme_minimal() +
+  theme(legend.position = "bottom")
 
 ggsave(
   file.path(forecast_figure_dir, "tfr_scenario_paths.png"),

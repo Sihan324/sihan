@@ -1,10 +1,13 @@
 ---
 title: "Statistical Appendix"
 author: "Sihan Zhuang"
+date: "2026-06-06"
 format:
   html:
     toc: true
     number-sections: true
+    code-fold: true
+    code-summary: "Show reproducible R code"
 execute:
   echo: true
   warning: false
@@ -19,7 +22,19 @@ if (basename(getwd()) == "report") {
 knitr::opts_knit$set(root.dir = project_root)
 setwd(project_root)
 source("R/00_setup.R")
-source("R/01_data_import.R")
+fertility_births <- readr::read_csv(
+  "data/processed/singapore_fertility_births.csv",
+  show_col_types = FALSE
+)
+
+kable_clean <- function(data, caption, digits = 3) {
+  knitr::kable(
+    data,
+    caption = caption,
+    digits = digits,
+    format.args = list(big.mark = ",", scientific = FALSE)
+  )
+}
 ```
 
 # Data Processing Details
@@ -43,7 +58,7 @@ data_window_summary <- readr::read_csv(
   "data/processed/report_tables/data_window_summary.csv",
   show_col_types = FALSE
 )
-data_window_summary
+kable_clean(data_window_summary, "Analysis window and endpoint values.", digits = 2)
 ```
 
 # Stationarity Diagnostics
@@ -55,10 +70,21 @@ stationarity_diagnostics <- readr::read_csv(
   "data/processed/stationarity_diagnostics.csv",
   show_col_types = FALSE
 )
-stationarity_diagnostics
+kable_clean(
+  stationarity_diagnostics,
+  "KPSS stationarity diagnostics. The KPSS null hypothesis is stationarity."
+)
 ```
 
 The raw TFR and raw log live-births series have KPSS p-values of 0.01, which is consistent with non-stationarity. Differenced log live-births has p-value 0.10, which is more consistent with stationarity. Differenced TFR still has p-value 0.01, suggesting stronger persistence or structural change.
+
+![ACF of raw TFR.](../figures/eda/tfr_acf.png){#fig-app-tfr-acf width=85%}
+
+![ACF of first-differenced TFR.](../figures/eda/differenced_tfr_acf.png){#fig-app-tfr-diff-acf width=85%}
+
+![ACF of raw log live births.](../figures/eda/log_births_acf.png){#fig-app-birth-acf width=85%}
+
+![ACF of first-differenced log live births.](../figures/eda/differenced_log_births_acf.png){#fig-app-birth-diff-acf width=85%}
 
 # Statistical Tests and Estimation Procedures
 
@@ -87,14 +113,30 @@ These criteria answer different questions. AICc evaluates in-sample likelihood-a
 # Candidate Model Summaries
 
 ```{r}
-source("R/03_models.R")
-tfr_model_summary
-birth_model_summary
+tfr_model_summary <- readr::read_csv(
+  "data/processed/models/tfr_model_summary.csv",
+  show_col_types = FALSE
+)
+birth_model_summary <- readr::read_csv(
+  "data/processed/models/birth_model_summary.csv",
+  show_col_types = FALSE
+)
+kable_clean(tfr_model_summary, "TFR candidate-model likelihood criteria.")
+kable_clean(birth_model_summary, "Log live-birth candidate-model likelihood criteria.")
 ```
 
 The TFR candidate models are close by AICc. The automatic ARIMA model has the lowest AICc, while the drift and no-drift alternatives are within a small range. This means the TFR model choice should not rely on AICc alone.
 
 The live-birth candidate models show a clearer AICc preference. The model with TFR as an explanatory regressor has the lowest AICc by a large margin.
+
+The fitted model classes are:
+
+- automatic TFR model: ARIMA(0,2,1);
+- selected forecast-focused TFR model: ARIMA(1,1,1) with drift;
+- TFR no-drift comparison: ARIMA(1,1,1);
+- automatic and drift log-birth benchmark: ARIMA(0,1,0) with drift;
+- no-drift log-birth benchmark: ARIMA(0,1,0);
+- selected conditional birth model: TFR regression with ARIMA(0,0,3) errors.
 
 # Model Selection Decision Rule
 
@@ -119,8 +161,8 @@ birth_model_coefficients <- readr::read_csv(
   show_col_types = FALSE
 )
 
-tfr_model_coefficients
-birth_model_coefficients
+kable_clean(tfr_model_coefficients, "Coefficient estimates for TFR candidate models.")
+kable_clean(birth_model_coefficients, "Coefficient estimates for log live-birth candidate models.")
 ```
 
 For the forecast-focused TFR drift model, the AR coefficient is close to one and the MA coefficient is negative. The estimated drift constant is small and not statistically significant at conventional levels. This is one reason the model should be interpreted cautiously even though it performs well in the holdout exercise.
@@ -161,26 +203,36 @@ birth_residual_tests <- readr::read_csv(
   show_col_types = FALSE
 )
 
-tfr_residual_tests
-birth_residual_tests
+kable_clean(tfr_residual_tests, "Lag-10 Ljung-Box tests for TFR candidate models.")
+kable_clean(birth_residual_tests, "Lag-10 Ljung-Box tests for log live-birth candidate models.")
 ```
 
 The TFR candidates have Ljung-Box p-values above 0.25 at lag 10, so the current residual tests do not provide strong evidence of remaining autocorrelation.
 
 The live-birth model with TFR as an explanatory variable has a Ljung-Box p-value of 0.0185. This indicates that its residuals are not fully white noise. It remains the best candidate by AICc and holdout RMSE among the models currently implemented, but additional model development is warranted.
 
-![TFR residual ACF](../figures/model_diagnostics/tfr_final_model_residual_acf.png)
+![Residual ACF for the selected TFR model.](../figures/model_diagnostics/tfr_final_model_residual_acf.png){#fig-app-tfr-residual-acf width=85%}
 
-![Birth residual ACF](../figures/model_diagnostics/birth_final_model_residual_acf.png)
+![Residual ACF for the selected conditional live-birth model.](../figures/model_diagnostics/birth_final_model_residual_acf.png){#fig-app-birth-residual-acf width=85%}
 
 # Forecast Evaluation
 
 The forecast evaluation uses the most recent ten years as a holdout sample. This provides an out-of-sample check that is separate from in-sample likelihood-based model comparison.
 
 ```{r}
-source("R/04_forecast_evaluation.R")
-tfr_accuracy
-birth_accuracy
+tfr_accuracy <- readr::read_csv(
+  "data/processed/evaluation/tfr_forecast_accuracy.csv",
+  show_col_types = FALSE
+)
+birth_accuracy <- readr::read_csv(
+  "data/processed/evaluation/birth_forecast_accuracy.csv",
+  show_col_types = FALSE
+)
+kable_clean(tfr_accuracy, "Ten-year holdout accuracy for TFR candidates.")
+kable_clean(
+  birth_accuracy,
+  "Ten-year holdout accuracy for log live-birth candidates. The TFR model is conditional on observed holdout TFR."
+)
 ```
 
 For TFR, the drift model is clearly best by RMSE. This is why it is used as the forecast-focused TFR model in the main report. For log live-births, the TFR explanatory model is best by RMSE, although the residual diagnostics indicate that it should be refined further.
@@ -199,7 +251,6 @@ The main report therefore describes the TFR model as an informative explanatory 
 # Scenario Forecasting Extension
 
 ```{r}
-source("R/05_scenario_forecasts.R")
 tfr_scenarios <- readr::read_csv(
   "data/processed/scenarios/tfr_scenario_paths.csv",
   show_col_types = FALSE
@@ -209,8 +260,11 @@ birth_scenario_forecasts <- readr::read_csv(
   show_col_types = FALSE
 )
 
-tfr_scenarios
-birth_scenario_forecasts
+kable_clean(tfr_scenarios, "Alternative TFR paths for 2026-2035.")
+kable_clean(
+  birth_scenario_forecasts,
+  "Conditional live-birth forecasts under the alternative TFR paths."
+)
 ```
 
 The scenario workflow uses the same live-birth model with TFR as an explanatory variable, but replaces the observed future TFR values with three constructed paths. The `model_trend` path uses the mean forecast from the selected TFR ARIMA model. The `stabilisation` path keeps TFR fixed at 0.87, the observed 2025 value. The `gradual_rebound` path increases TFR linearly to 1.10 by 2035.
@@ -222,12 +276,16 @@ scenario_endpoint_summary <- readr::read_csv(
   "data/processed/report_tables/scenario_endpoint_summary.csv",
   show_col_types = FALSE
 )
-scenario_endpoint_summary
+kable_clean(
+  scenario_endpoint_summary,
+  "Scenario endpoints in 2035.",
+  digits = c(NA, 0, 3, 0, 0)
+)
 ```
 
-![TFR scenario paths](../figures/forecasts/tfr_scenario_paths.png)
+![Alternative TFR scenario paths.](../figures/forecasts/tfr_scenario_paths.png){#fig-app-tfr-scenarios width=85%}
 
-![Birth scenario forecasts](../figures/forecasts/birth_scenario_forecasts.png)
+![Conditional live-birth forecasts under alternative TFR paths.](../figures/forecasts/birth_scenario_forecasts.png){#fig-app-birth-scenarios width=85%}
 
 # Further Model Development
 
@@ -265,8 +323,8 @@ forecast_accuracy_rankings <- readr::read_csv(
   show_col_types = FALSE
 )
 
-model_selection_summary
-forecast_accuracy_rankings
+kable_clean(model_selection_summary, "Selected-model evidence summary.")
+kable_clean(forecast_accuracy_rankings, "Forecast-accuracy rankings.")
 ```
 
 # Submission Asset Audit
@@ -287,9 +345,9 @@ report_figure_links <- readr::read_csv(
   show_col_types = FALSE
 )
 
-submission_audit_summary
-submission_asset_check
-report_figure_links
+kable_clean(submission_audit_summary, "Submission audit summary.", digits = 0)
+kable_clean(submission_asset_check, "Required submission assets.", digits = 0)
+kable_clean(report_figure_links, "Report figure-link audit.", digits = 0)
 ```
 
 The current audit summary reports zero problems for the required asset list and zero problems for report figure links. This does not replace rendering the final documents, but it reduces the risk of submitting a report with missing code, tables or image files.

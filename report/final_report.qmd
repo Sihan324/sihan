@@ -1,204 +1,677 @@
 ---
-title: "Time Series Final Report"
-author: "Sihan Zhuang"
+title: "Singapore Fertility and Live Births"
+subtitle: "MATH X313 — Time Series Analysis"
+author: "Sihan Zhuang (a1984459)"
+date: "2026-06-06"
 format:
-  html:
+  pdf:
     toc: true
+    toc-depth: 2
     number-sections: true
+    colorlinks: true
+    fig-pos: "H"
+    geometry:
+      - top=25mm
+      - bottom=25mm
+      - left=25mm
+      - right=25mm
+    include-in-header:
+      text: |
+        \usepackage{booktabs}
+        \usepackage{longtable}
+        \usepackage{float}
+        \usepackage{fancyhdr}
+        \pagestyle{fancy}
+        \fancyhead[L]{\small Singapore Fertility and Live Births}
+        \fancyhead[R]{\small MATH X313}
+        \fancyfoot[C]{\thepage}
 execute:
   echo: false
   warning: false
   message: false
+editor: visual
 ---
 
 ```{r}
-project_root <- getwd()
-if (basename(getwd()) == "report") {
-  project_root <- normalizePath("..")
-}
-knitr::opts_knit$set(root.dir = project_root)
-setwd(project_root)
-source("R/00_setup.R")
-source("R/01_data_import.R")
+#| label: setup
+library(readr)
+library(dplyr)
+library(knitr)
+
+# Paths relative to report/
+data_dir    <- file.path("..", "data", "processed")
+models_dir  <- file.path("..", "data", "processed", "models")
+eval_dir    <- file.path("..", "data", "processed", "evaluation")
+tables_dir  <- file.path("..", "data", "processed", "report_tables")
+fig_eda     <- file.path("..", "figures", "eda")
+fig_diag    <- file.path("..", "figures", "model_diagnostics")
+fig_fc      <- file.path("..", "figures", "forecasts")
 ```
 
-# Research Question
+## Research Question
 
-Singapore has experienced a long decline in fertility, but the total number of births is not determined by fertility rates alone. It is also affected by cohort size, migration, marriage timing, and broader demographic structure. This report asks:
+We use the Total Fertility Rate (TFR) and Total Live Births (TLB) data from the
+Singapore Department of Statistics website. Both series have declined
+continuously since 1960, but they measure distinct demographic phenomena. TFR
+captures age-specific fertility behaviour averaged across all women; the birth
+count additionally reflects the size, age structure, and changing composition of
+the female population. These two series are linked in the short run — if more
+women bear children, births tend to rise — yet in the long run they can diverge
+as cohort effects, migration, and marriage patterns shift the underlying exposure.
 
-> How have Singapore's total fertility rate and total live-births evolved over time, and how well can short-horizon time series models forecast these demographic indicators?
+The causes of this decline have been studied extensively. Chen et al. (2018)
+conduct an elasticity analysis of Singapore's TFR and find that 20–29-year-old
+single women and married childless women aged 30–34 are the most influential
+groups in determining TFR, yet Singapore's pro-natalist policies have
+historically targeted third and higher-order births — a mismatch that has limited
+policy effectiveness. For regional context, Shair et al. (2024) document a
+parallel decline in Malaysia, where Chinese and Indian fertility rates are
+projected to fall below 1.0 by 2040 under their Lee-Carter model. These
+demographic findings motivate a time series approach: if structural policy
+interventions cannot reliably reverse the trend, statistically characterising the
+trajectory and producing conditional projections is a natural next step.
 
-The question has both an inferential and a forecasting component. The inferential component is to describe the persistence, trend and possible structural change in fertility and births. The forecasting component is to compare simple time series models for short-horizon prediction.
+This raises a natural forecasting question: does incorporating TFR as a predictor
+improve birth projections beyond what a univariate birth model achieves on its
+own? And what are the demographic implications for future birth counts under
+alternative fertility assumptions?
 
-# Executive Summary
+**Research question:** How have Singapore's TFR and total live births evolved
+since 1960, and can a conditional time-series model — one that uses TFR as a
+covariate — produce better birth forecasts than univariate ARIMA benchmarks over
+a ten-year holdout period?
 
-This report uses annual Singapore fertility and live-birth data from 1960 to 2025 to assess long-run demographic change and short-horizon forecasting performance. The analysis applies a reproducible R workflow covering data import, exploratory analysis, stationarity diagnostics, ARIMA model fitting, residual checks, holdout evaluation and scenario forecasting.
+Both series exhibit strong long-run decline and high serial persistence. Annual
+data over 1960–2025 (66 observations) are used. The absence of within-year
+seasonality makes non-seasonal ARIMA models and regression with ARIMA errors
+appropriate frameworks (Hyndman and Athanasopoulos, 2021).
 
-The final TFR forecast model is an ARIMA model with drift because it gives the best ten-year holdout forecast accuracy among the current candidates. The final live-birth model uses TFR as an explanatory regressor with ARIMA errors. This model has the strongest in-sample AICc and conditional holdout performance for log live-births, but it is not fully adequate because residual autocorrelation remains. The live-birth forecasts are therefore interpreted as conditional forecasts or scenario forecasts, not as complete standalone demographic forecasts.
+## Data
 
-Overall, the analysis supports two conclusions. First, Singapore's fertility decline is persistent and structurally important for understanding live-birth dynamics. Second, a simple ARIMA-based workflow is useful for transparent short-horizon forecasting, but policy-grade demographic forecasting would require additional covariates such as age structure, migration, marriage patterns and policy indicators.
-
-# Key Findings
-
-The analysis gives four main findings:
-
-- Singapore's TFR declined from 5.76 in 1960 to 0.87 in 2025, while total live-births declined from 61,775 to 30,004 over the same period.
-- Both raw series show strong persistence and non-stationarity. Differencing is more successful for log live-births than for TFR, suggesting that fertility contains persistent structural change.
-- For TFR forecasting, the ARIMA model with drift performs best in the ten-year holdout period, with RMSE 0.0281, even though the automatic ARIMA model has slightly better AICc.
-- For log live-births, the model with TFR as an explanatory variable has the best AICc and conditional holdout RMSE, but residual autocorrelation remains and the holdout comparison uses observed TFR values.
-- Scenario forecasts show that 2035 projected live-births are sensitive to future TFR assumptions, ranging from about 35,157 under the model-trend TFR path to 38,875 under a gradual TFR rebound to 1.10.
-
-The main conclusion is therefore cautious: simple ARIMA models provide a useful short-horizon forecasting baseline, and TFR is informative for live-births, but a complete demographic forecasting model would need additional population and policy variables.
-
-# Data
-
-The data come from the official data.gov.sg dataset `Births And Fertility Rates, Annual`, published through SingStat. The reproducible workflow downloads the dataset through the data.gov.sg API and extracts two annual series:
-
-- `tfr`: total fertility rate (TFR), interpreted as births per woman under current age-specific fertility rates.
-- `total_live_births`: total annual live-births.
-
-The processed data cover 1960 to 2025. In this period TFR fell from 5.76 in 1960 to 0.87 in 2025. Total live-births fell from 61,775 in 1960 to 30,004 in 2025, although the path is less monotone than the fertility rate series. Total live-births are modelled on the log scale to make changes closer to proportional changes.
-
-# Exploratory Analysis
+The analysis uses official annual data covering the full period for which
+consistent SingStat records are available. Table 1 records the key properties
+of the two series used throughout.
 
 ```{r}
-source("R/02_eda.R")
+#| label: tbl-data-window
+#| tbl-cap: "Analysis window and series endpoints"
+window <- read_csv(file.path(tables_dir, "data_window_summary.csv"),
+                   show_col_types = FALSE)
+kable(window, digits = 2,
+      col.names = c("Start", "End", "N", "TFR start",
+                    "TFR end", "Births start", "Births end"))
 ```
 
-![TFR time series](../figures/eda/tfr_time_series.png)
+The dataset comes from Singapore's Department of Statistics (*Births and
+Fertility Rates, Annual*, data.gov.sg). The raw file is in wide format;
+preparation script `R/01_prepare.R` reshapes it into annual long format,
+computing the natural logarithm of live births as an additional modelling
+variable. Two response series are analysed:
 
-![Total live-births time series](../figures/eda/total_live_births_time_series.png)
+- **TFR** (children per woman): modelled on the original scale.
+- **Log live births**: modelled as $\log(\text{births}_t)$, which stabilises
+  variance and allows proportional rather than absolute changes to be estimated
+  directly.
 
-The TFR series shows a strong downward trend. The largest decline occurs early in the sample, followed by a lower and flatter period after the late 1970s. There are temporary rebounds, including a visible increase around the late 1980s, but these do not reverse the long-run decline.
+The choice of log scale for births is motivated by the decreasing-mean,
+decreasing-variance pattern visible in the raw series; the coefficient of
+variation on the log scale is substantially more stable across sub-periods.
 
-The total live-births series also declines over the full sample, but it fluctuates more than TFR. This is expected because live-births depend not only on fertility rates but also on the number of women at child-bearing ages and other demographic conditions. The indexed comparison shows that TFR fell much more sharply than total births over the long sample.
+## Exploratory Analysis
 
-![Indexed comparison](../figures/eda/indexed_tfr_births.png)
+Before specifying any model, time plots and autocorrelation functions are examined
+to characterise the main features of each series: overall direction, the nature
+and pace of change, and the degree of serial persistence. These observations
+directly shape the choice of differencing order and candidate model structures.
 
-The ACF plots for the raw series show strong persistence, which is consistent with non-stationarity. KPSS tests support this reading: the KPSS p-values are 0.01 for both raw TFR and log total live-births. First differencing resolves the stationarity issue for log total live-births in this workflow, with KPSS p-value 0.10. First-differenced TFR still has KPSS p-value 0.01, which suggests that the fertility series may contain persistent structural change rather than only a simple stochastic trend.
-
-# Methods
-
-Annual data have no within-year seasonality, so the main candidate models are non-seasonal ARIMA models. For a series \(y_t\), an ARIMA model can be written as
-
-\[
-\phi(B)(1-B)^d y_t = c + \theta(B) z_t,
-\]
-
-where \(B\) is the backshift operator, \(d\) is the differencing order and \(z_t\) is white noise. Candidate models were fitted using the `ARIMA()` function from `fable`, and compared using AICc, residual diagnostics and a ten-year holdout forecast evaluation.
-
-For TFR, the candidate set includes automatic ARIMA selection, an ARIMA model with drift, and an ARIMA model without drift. For total live-births, the response is \(\log(\text{births})\). The candidate set includes automatic ARIMA models and a model with TFR as an explanatory variable:
-
-\[
-\log(Births_t) = \beta_0 + \beta_1 TFR_t + n_t,
-\]
-
-where \(n_t\) follows an ARIMA error process. This model is useful because it directly tests whether TFR helps explain annual live-birth levels, while still allowing serially correlated model errors.
-
-For the live-birth model, the holdout evaluation is a conditional forecast exercise because the forecast step supplies the observed TFR values in the test period. This is useful for measuring whether TFR contains explanatory information for live-births, but a real future forecast would need either a separate forecast of TFR or explicit TFR scenarios.
-
-# Results
+#### Level series
 
 ```{r}
-source("R/03_models.R")
+#| label: fig-tfr
+#| fig-cap: "Singapore TFR, 1960–2025."
+knitr::include_graphics(file.path(fig_eda, "tfr_time_series.png"))
 ```
-
-For TFR, the AICc-best model is the automatically selected ARIMA model, with AICc -75.73. The ARIMA model with drift has AICc -74.14, so it is worse by AICc but not by a large margin. Its Ljung-Box p-value is 0.382, which does not indicate strong residual autocorrelation at lag 10.
-
-For log total live-births, the model using TFR as an explanatory variable has the best AICc by a clear margin: -192.53 compared with approximately -180.41 for the next best candidates. The estimated TFR coefficient is positive at 0.116, with a very small p-value, indicating that higher fertility rates are associated with higher log live-birth levels in this model.
-
-However, the residual diagnostic result for the TFR-explanatory model is not perfect. Its Ljung-Box p-value is 0.0185, suggesting remaining serial dependence in the residuals. This means the model is useful, but not a complete final explanation of the birth series. This point is important for the discussion and motivates further model refinement in the appendix.
-
-The current model choices are summarised below. The generated table separates the preferred reporting model from the main numerical criteria, because the best model depends on whether the goal is in-sample fit, residual adequacy, or forecast accuracy.
 
 ```{r}
-model_selection_summary <- readr::read_csv(
-  "data/processed/report_tables/model_selection_summary.csv",
-  show_col_types = FALSE
-)
-model_selection_summary
+#| label: fig-births
+#| fig-cap: "Singapore total live births, 1960–2025."
+knitr::include_graphics(file.path(fig_eda, "total_live_births_time_series.png"))
 ```
 
-For TFR, the key trade-off is that the drift model is forecast-best even though `arima_auto` is slightly better by AICc. For log total live-births, the TFR-regressor model is the strongest conditional model, but the Ljung-Box p-value remains low enough that it should not be treated as fully adequate.
-
-![TFR model residuals](../figures/model_diagnostics/tfr_final_model_residuals.png)
-
-![Birth model residuals](../figures/model_diagnostics/birth_final_model_residuals.png)
-
-# Forecasting Evaluation
+TFR falls steeply through the 1960s and early 1970s, reflecting Singapore's
+post-independence demographic transition; the pace of decline moderates after
+the 1980s but never reverses on a sustained basis, reaching 0.87 in 2025. Live
+births show a broadly similar trend but with greater short-run volatility — most
+notably the 1988 baby-boom rebound, which produced the largest single-year
+increase of 9,341 births, followed by sharper fluctuations through the 2000s.
 
 ```{r}
-source("R/04_forecast_evaluation.R")
+#| label: fig-indexed
+#| fig-cap: "TFR and live births indexed to 1960 = 1, showing proportional decline."
+knitr::include_graphics(file.path(fig_eda, "indexed_tfr_births.png"))
 ```
 
-The most recent ten years were held out for forecast evaluation. This gives a more direct check of short-horizon predictive performance than AICc alone.
+The indexed comparison shows that TFR has fallen proportionately much further
+than the birth count. By 2025, TFR stands at roughly 15% of its 1960 level,
+while total births are approximately 49% of the 1960 figure. This divergence
+reflects the growth and ageing of the female population over the period: more
+women of childbearing age offset part of the per-woman fertility decline in the
+medium term. The implication for modelling is important — a univariate birth
+model cannot separate the two sources of variation, whereas conditioning on TFR
+allows the model to leverage the fertility signal while attributing residual
+fluctuations to population structure and other factors.
 
-For TFR, the holdout results differ from the AICc ranking. The ARIMA model with drift has the lowest test RMSE, 0.0281, compared with 0.178 for the automatic ARIMA model and 0.186 for the no-drift model. This is a substantial difference. For a forecasting objective, the drift model is therefore the current preferred TFR model, even though the automatic ARIMA model is slightly better by AICc on the full sample.
-
-For log total live-births, the model with TFR as an explanatory variable has the best holdout RMSE, 0.123. The drift model is close at 0.126, while the automatic and no-drift models are worse at 0.167. This agrees with the AICc comparison and supports using TFR as a predictor for the live-birth model, while still noting the residual autocorrelation issue.
-
-This comparison should be interpreted carefully. The birth model with TFR is evaluated using known holdout TFR values, so its accuracy is conditional on that regressor being available. The result therefore supports TFR as an informative demographic predictor, but it does not by itself prove that future live-births can be forecast with the same accuracy unless future TFR is also forecast or assumed through scenarios.
-
-![TFR forecasts](../figures/forecasts/tfr_forecasts.png)
-
-![Log births forecasts](../figures/forecasts/log_births_forecasts.png)
-
-# Scenario Forecasts
+#### Autocorrelation structure
 
 ```{r}
-source("R/05_scenario_forecasts.R")
+#| label: fig-acf-tfr
+#| fig-cap: "Sample ACF of TFR at the level (left) and after first differencing (right)."
+knitr::include_graphics(file.path(fig_eda, "tfr_acf.png"))
 ```
-
-The conditional birth model can be used for simple scenario analysis by supplying alternative future TFR paths. Three illustrative paths are considered for 2026-2035:
-
-- `model_trend`: the mean TFR path from the forecast-focused ARIMA model.
-- `stabilisation`: TFR remains at the 2025 value of 0.87.
-- `gradual_rebound`: TFR rises gradually to 1.10 by 2035.
-
-These scenarios are not predictions of policy outcomes. They are sensitivity checks showing how the live-birth model responds to different fertility assumptions. Under the model-trend TFR path, the approximate 2035 live-birth forecast is 35,157. If TFR stabilises at 0.87, the corresponding forecast is 37,852. Under a gradual rebound to TFR 1.10, the 2035 forecast is 38,875. The spread of roughly 3,700 births shows why future TFR assumptions matter for demographic forecasting.
 
 ```{r}
-scenario_endpoint_summary <- readr::read_csv(
-  "data/processed/report_tables/scenario_endpoint_summary.csv",
-  show_col_types = FALSE
-)
-scenario_endpoint_summary
+#| label: fig-acf-logbirths
+#| fig-cap: "Sample ACF of log live births at the level."
+knitr::include_graphics(file.path(fig_eda, "log_births_acf.png"))
 ```
 
-![TFR scenario paths](../figures/forecasts/tfr_scenario_paths.png)
+Both level ACFs decay slowly over many lags, a pattern typical of integrated
+or near-unit-root processes. After first differencing (right panel of
+@fig-acf-tfr), the TFR ACF shows a spike at lag 1 that motivates an MA
+component in the ARIMA specification. The differenced log-births ACF behaves
+similarly. Together, these plots suggest that $d = 1$ is sufficient for both
+series and that a low-order ARIMA specification will be a reasonable starting
+point. Formal stationarity tests in the next section refine this assessment.
 
-![Birth scenario forecasts](../figures/forecasts/birth_scenario_forecasts.png)
+## Transformation and Stationarity
 
-# Discussion
+Two decisions must be made before any ARIMA model can be estimated: whether
+to apply a variance-stabilising transformation, and how many orders of
+differencing are needed. The ACF evidence from the exploratory analysis pointed
+toward $d = 1$; KPSS tests provide a formal check.
 
-The analysis shows that both TFR and total live-births have persistent long-run decline, but their dynamics are not identical. TFR is smoother and more directly downward, while live-births contain additional demographic variation. This supports modelling them separately rather than treating births as a simple rescaling of fertility.
+#### Log transformation
 
-The most important modelling lesson is that model selection depends on the goal. AICc and holdout accuracy do not select the same TFR model. For explaining the in-sample stochastic structure, the automatic ARIMA model is competitive. For short-horizon forecasting over the recent holdout period, the drift model is much better. For live-births, adding TFR improves both AICc and holdout RMSE, but residual autocorrelation remains, so the model should be interpreted as a useful candidate rather than a fully adequate final model.
+For TFR, the original scale is retained: the coefficient of variation changes
+substantially across sub-periods (early 0.41, middle 0.10), so variance is
+non-proportional to the mean and log-transforming would amplify noise in the
+later, lower-level period. For live births, variance is more proportional and
+the log scale offers a cleaner model of relative change.
 
-The main limitation is that the current models are univariate or use only TFR as one explanatory variable. The TFR coefficient should not be read as a causal estimate because the model omits population composition, migration, marriage rates, policy changes and other demographic drivers. A richer demographic forecast could include age-specific fertility rates, female population by age group, marriage rates, policy indicators, and structural break terms. These additions would be especially relevant because the TFR stationarity diagnostics suggest persistent structural change.
-
-# Conclusion
-
-The research question asked how Singapore's TFR and total live-births have evolved over time and how well short-horizon time series models can forecast them. The evidence shows a strong long-run decline in both series, with TFR falling more sharply and persistently than total live-births. The stationarity diagnostics and ACF behaviour indicate that these are highly persistent demographic series rather than short-memory fluctuations around a fixed mean.
-
-For forecasting, the ARIMA drift model is the strongest current TFR model by holdout RMSE. For live-births, the ARIMA-error model with TFR is the best current conditional model, but the remaining residual autocorrelation means it should be treated as a useful baseline rather than a complete final demographic model. The scenario forecasts reinforce this point: projected births in 2035 change materially when different future TFR assumptions are supplied.
-
-The practical implication is that TFR is a useful predictor and interpretive variable, but future work should add demographic structure and policy context before drawing stronger population-planning conclusions. Within the scope of this course assignment, the submitted workflow demonstrates reproducible time series modelling, transparent model comparison and cautious interpretation of forecast uncertainty.
-
-# Reproducibility Check
-
-The workflow includes a submission audit script, `R/07_submission_audit.R`, which checks that the main scripts, report files, generated tables and referenced figures are present and non-empty. The current audit found no missing required assets and no broken report figure links.
+#### KPSS stationarity tests
 
 ```{r}
-submission_audit_summary <- readr::read_csv(
-  "data/processed/report_tables/submission_audit_summary.csv",
-  show_col_types = FALSE
-)
-submission_audit_summary
+#| label: tbl-kpss
+#| tbl-cap: "KPSS stationarity test results"
+kpss <- read_csv(file.path(data_dir, "stationarity_diagnostics.csv"),
+                 show_col_types = FALSE)
+kable(kpss, digits = 3,
+      col.names = c("Series", "KPSS stat", "p-value"))
 ```
 
-# References
+KPSS tests (Kwiatkowski et al., 1992) reject stationarity for both the level
+TFR and level log-births series (p = 0.01 in each case). Denoting the
+first-difference operator as $\nabla y_t = y_t - y_{t-1}$, we find that
+$\nabla\log(\text{births})$ clears the test (p = 0.10), confirming $d = 1$ is
+appropriate for that series. $\nabla$TFR still produces a KPSS p-value of 0.01,
+indicating that one order of differencing may not fully eliminate structural
+persistence in TFR. Rather than differencing a second time — which would
+over-difference and discard genuine low-frequency variation — this persistence
+is handled within the ARIMA model by including an AR(1) term with a coefficient
+close to unity. The near-unity AR coefficient in the fitted model (Section 5)
+is the in-model counterpart of this KPSS finding, and it motivates confining
+interpretation to short forecast horizons rather than long-run extrapolation.
 
-- Singapore Department of Statistics. `Births And Fertility Rates, Annual`, accessed through data.gov.sg.
-- Hyndman, R. J., and Athanasopoulos, G. (2021). *Forecasting: Principles and Practice*, 3rd edition.
-- O'Hara-Wild, M., Hyndman, R., and Wang, E. (2024). `fable`: Forecasting Models for Tidy Time Series.
+```{r}
+#| label: fig-diff-tfr-acf
+#| fig-cap: "ACF of first-differenced TFR."
+knitr::include_graphics(file.path(fig_eda, "differenced_tfr_acf.png"))
+```
+
+```{r}
+#| label: fig-diff-lb-acf
+#| fig-cap: "ACF of first-differenced log live births."
+knitr::include_graphics(file.path(fig_eda, "differenced_log_births_acf.png"))
+```
+
+The differenced ACFs confirm the visual impression: no prominent spikes beyond
+lag 1 for TFR, and a broadly similar pattern for differenced log-births. The
+differencing order $d = 1$ is adopted for all ARIMA candidates, and the choice
+of log-transformation for births is retained throughout.
+
+## Candidate Models
+
+#### Training and holdout design
+
+All models are estimated on the **training window 1960–2015** (56 observations)
+and evaluated on the **holdout window 2016–2025** (10 observations). The
+10-year holdout represents 15% of the full sample, a reasonable proportion for
+assessing short-to-medium forecast accuracy on an annual series.
+
+Model choice is guided by three criteria applied jointly: AICc for in-sample
+parsimony, the Ljung–Box portmanteau test (lag 10) for residual whiteness, and
+holdout RMSE for out-of-sample predictive performance. A model that achieves
+the best AICc but fails the Ljung–Box test, or that scores well on in-sample
+fit but poorly on the holdout, is not a satisfactory candidate.
+
+#### TFR candidates
+
+Three ARIMA specifications are compared for TFR:
+
+- **Automatic ARIMA**: orders and constant selected by minimising AICc over a
+  search grid with $d = 1$.
+- **ARIMA(1,1,1) with drift**: a first-differenced AR(1)–MA(1) model augmented
+  by an estimated constant $\hat{c}$, capturing a persistent systematic decline.
+- **ARIMA(1,1,1) without drift**: the same structure with $c = 0$.
+
+Using the notation of Box et al. (2015), the fitted ARIMA(1,1,1) with drift
+equation for $\nabla y_t = y_t - y_{t-1}$ is:
+
+$$
+(1 - \hat{\phi}_1 B)\,\nabla y_t = \hat{c} + (1 + \hat{\theta}_1 B)\,\varepsilon_t,
+\quad \varepsilon_t \sim \text{N}(0,\,\hat{\sigma}^2)
+$$
+
+with $\hat{\phi}_1 = 0.953$ (SE 0.053), $\hat{\theta}_1 = -0.769$ (SE 0.098),
+$\hat{c} = -0.00464$ births per woman per year, and estimated innovation
+variance $\hat{\sigma}^2 = 0.00178$.
+
+#### Births candidates
+
+Four candidates are fitted for log live births:
+
+- **Automatic ARIMA with drift** and **without drift**: direct univariate
+  benchmarks.
+- **ARIMA(1,1,0) with drift** (no drift): standalone baselines.
+- **TFR regression with ARIMA(0,0,3) errors**: a conditional model of the form
+
+$$
+\log(B_t) = \beta_0 + \beta_1\,\text{TFR}_t + n_t, \qquad n_t = (1 + \theta_1 B + \theta_2 B^2 + \theta_3 B^3)\,\varepsilon_t
+$$
+
+Estimated coefficients: $\hat{\beta}_0 = 10.44$, $\hat{\beta}_1 = 0.116$
+(SE 0.014, $p < 0.001$), $\hat{\theta}_1 = 0.834$, $\hat{\theta}_2 = 0.635$,
+$\hat{\theta}_3 = 0.416$. The positive TFR coefficient means that years with
+higher fertility are associated with more births after accounting for the
+MA(3) error dynamics — consistent with the exploratory observation that the
+two series co-move. This is a predictive association, not a causal effect:
+both variables are influenced by underlying demographic and policy conditions,
+and the coefficient should not be read as the direct effect of changing TFR.
+
+```{r}
+#| label: tbl-tfr-models
+#| tbl-cap: "TFR candidate model summary (training sample 1960–2015)"
+tfr_summary <- read_csv(file.path(models_dir, "tfr_model_summary.csv"),
+                        show_col_types = FALSE) |>
+  select(.model, sigma2, AICc)
+kable(tfr_summary, digits = 3,
+      col.names = c("Model", "sigma2", "AICc"))
+```
+
+```{r}
+#| label: tbl-birth-models
+#| tbl-cap: "Log live-birth candidate model summary (training sample 1960–2015)"
+birth_summary <- read_csv(file.path(models_dir, "birth_model_summary.csv"),
+                          show_col_types = FALSE) |>
+  select(.model, sigma2, AICc)
+kable(birth_summary, digits = 4,
+      col.names = c("Model", "sigma2", "AICc"))
+```
+
+## Model Diagnostics
+
+Adequate model fit requires that the one-step residuals behave like white noise:
+no systematic pattern over time and no significant autocorrelation at any lag.
+If residuals carry structure, the model has failed to extract all available
+information from the data, and its prediction intervals will be misspecified.
+Residual plots and the formal Ljung–Box test are used to evaluate each selected
+model.
+
+#### Residual plots
+
+```{r}
+#| label: fig-tfr-resid
+#| fig-cap: "Innovation residuals from the selected TFR model (ARIMA(1,1,1) with drift)."
+knitr::include_graphics(file.path(fig_diag, "tfr_final_model_residuals.png"))
+```
+
+```{r}
+#| label: fig-tfr-resid-acf
+#| fig-cap: "Residual ACF for the selected TFR model."
+knitr::include_graphics(file.path(fig_diag, "tfr_final_model_residual_acf.png"))
+```
+
+The ARIMA(1,1,1) with drift residuals scatter around zero with no obvious
+pattern and no spikes beyond the 95% bands in the ACF. The Ljung–Box
+portmanteau test at lag 10 (Ljung and Box, 1978) gives $p = 0.382$, well
+above the 5% threshold, providing no evidence of residual autocorrelation.
+
+```{r}
+#| label: fig-birth-resid
+#| fig-cap: "Innovation residuals from the TFR regression model for log births."
+knitr::include_graphics(file.path(fig_diag, "birth_final_model_residuals.png"))
+```
+
+```{r}
+#| label: fig-birth-resid-acf
+#| fig-cap: "Residual ACF for the TFR regression model."
+knitr::include_graphics(file.path(fig_diag, "birth_final_model_residual_acf.png"))
+```
+
+The birth-model residuals show more structure than the TFR residuals; the
+Ljung–Box test yields $p = 0.019$, indicating remaining serial dependence at
+the 5% level. This is a genuine limitation that should be reported rather than
+concealed: the conditional model extracts substantial predictive signal from TFR
+but does not fully account for all autocorrelation in log births. Variables such
+as female population by age, marriage patterns, and lagged policy effects remain
+unmodelled. The consequence is that the model's stated prediction intervals will
+be somewhat too narrow, and the conditional point forecasts should be
+interpreted cautiously beyond a short horizon.
+
+#### Formal residual tests
+
+```{r}
+#| label: tbl-lb-tfr
+#| tbl-cap: "Ljung–Box test (lag = 10) for TFR candidate models"
+lb_tfr <- read_csv(file.path(models_dir, "tfr_residual_ljung_box.csv"),
+                   show_col_types = FALSE)
+kable(lb_tfr, digits = 4,
+      col.names = c("Model", "LB statistic", "p-value"))
+```
+
+```{r}
+#| label: tbl-lb-birth
+#| tbl-cap: "Ljung–Box test (lag = 10) for log live-birth candidate models"
+lb_birth <- read_csv(file.path(models_dir, "birth_residual_ljung_box.csv"),
+                     show_col_types = FALSE)
+kable(lb_birth, digits = 4,
+      col.names = c("Model", "LB statistic", "p-value"))
+```
+
+All three TFR candidates pass the residual test, so TFR model selection can
+proceed on accuracy grounds alone. For births, the univariate ARIMA candidates
+(drift and no-drift) pass comfortably ($p \approx 0.50$), whereas the TFR
+regression model fails at the 5% level. This failure does not disqualify the
+conditional model for conditional forecasting purposes — it simply means its
+stated prediction intervals will be somewhat optimistic — but it does mean the
+diagnostic-driven choice and the accuracy-driven choice point to different
+models. The forecast evaluation section examines both in detail.
+
+## Forecast Evaluation
+
+Each candidate model is fitted to the 1960–2015 training data and used to
+produce one- through ten-step-ahead forecasts for the holdout period 2016–2025.
+For the TFR regression model, observed holdout TFR values are supplied as the
+covariate, so its birth forecasts represent a conditional evaluation: they
+answer the question "how well does the model track births *given* that TFR is
+known?" rather than the harder question of standalone unconditional birth
+prediction. This distinction matters when interpreting the accuracy comparison.
+
+#### Holdout accuracy
+
+```{r}
+#| label: tbl-tfr-acc
+#| tbl-cap: "TFR holdout accuracy (2016–2025), ordered by RMSE"
+tfr_acc <- read_csv(file.path(eval_dir, "tfr_forecast_accuracy.csv"),
+                    show_col_types = FALSE) |>
+  select(.model, RMSE, MAE, MAPE) |>
+  arrange(RMSE)
+kable(tfr_acc, digits = 4,
+      col.names = c("Model", "RMSE", "MAE", "MAPE (%)"))
+```
+
+For TFR, ARIMA(1,1,1) with drift achieves a holdout RMSE of 0.028 — an order
+of magnitude smaller than the automatic ARIMA (0.178) and the no-drift variant
+(0.186). The drift term is the decisive factor: it allows the model to track
+the ongoing systematic decline across the holdout period, whereas models without
+it over-predict from the last training value.
+
+
+```{r}
+#| label: tbl-birth-acc
+#| tbl-cap: "Log live-birth holdout accuracy (2016–2025), ordered by RMSE"
+birth_acc <- read_csv(file.path(eval_dir, "birth_forecast_accuracy.csv"),
+                      show_col_types = FALSE) |>
+  select(.model, RMSE, MAE, MAPE) |>
+  arrange(RMSE)
+kable(birth_acc, digits = 4,
+      col.names = c("Model", "RMSE", "MAE", "MAPE (%)"))
+```
+
+For log live births, the TFR regression model achieves the lowest holdout RMSE
+(0.123), marginally ahead of the ARIMA with drift (0.126). Given that the
+conditional model receives observed TFR values during evaluation, the comparison
+is not entirely symmetric; nonetheless, even on this favourable footing the
+margin is modest — roughly 2% — and the conditional model's residual
+autocorrelation (Section 6) means its stated intervals are too narrow. For
+unconditional birth forecasting where future TFR must itself be projected, the
+ARIMA with drift represents the more self-contained and operationally realistic
+baseline.
+
+#### Forecast plots
+
+```{r}
+#| label: fig-tfr-fc-eval
+#| fig-cap: "TFR holdout forecasts vs. actuals, 2016–2025."
+knitr::include_graphics(file.path(fig_fc, "tfr_forecasts.png"))
+```
+
+```{r}
+#| label: fig-birth-fc-eval
+#| fig-cap: "Log live-birth holdout forecasts vs. actuals, 2016–2025."
+knitr::include_graphics(file.path(fig_fc, "log_births_forecasts.png"))
+```
+
+The forecast plots confirm the tabular rankings. For TFR, ARIMA(1,1,1) with
+drift tracks the declining path closely throughout the holdout window; the
+no-drift variant and automatic ARIMA both level off and diverge progressively
+from the observed values. For log births, the conditional model (TFR regression)
+and the drift ARIMA follow the data reasonably well over the first five years,
+with wider divergence appearing in 2021–2025 as pandemic-related disruptions
+caused births to deviate from trend. Overall, the models perform adequately at
+short horizons and deteriorate at longer ones, a pattern consistent with the
+highly persistent nature of both series.
+
+## Final Forecasts
+
+The selected models — ARIMA(1,1,1) with drift for TFR and TFR regression with
+ARIMA(0,0,3) errors for log births — are re-estimated on the full 1960–2025
+sample and projected forward to 2035. Widening prediction intervals reflect
+the genuine accumulation of forecast uncertainty over time, which is a natural
+feature of any extrapolation for highly persistent processes. The birth
+forecasts are reported on the original scale (thousands) by exponentiating the
+log-scale predictions.
+
+```{r}
+#| label: fig-tfr-final
+#| fig-cap: "TFR point forecast and 80%/95% prediction intervals, 2026–2035."
+knitr::include_graphics(file.path(fig_fc, "tfr_forecasts.png"))
+```
+
+```{r}
+#| label: fig-birth-final
+#| fig-cap: "Log live-birth forecast and prediction intervals, 2026–2035."
+knitr::include_graphics(file.path(fig_fc, "log_births_forecasts.png"))
+```
+
+The TFR central forecast continues the downward drift that characterised the
+training period, reaching approximately 0.23 children per woman by 2035. This
+trajectory reflects the mechanical extrapolation of a sustained negative drift
+coefficient ($\hat{c} = -0.00464$) combined with the near-unity AR coefficient
+that carries forward the current level. The prediction intervals widen
+substantially beyond three years, a consequence of the high AR persistence.
+For births, the conditional forecast requires an assumed TFR path; the
+scenario analysis in the following section explores the sensitivity of the
+birth projection to alternative fertility assumptions.
+
+## Scenario Projections
+
+The conditional structure of the birth model makes it naturally suited to
+scenario analysis. Rather than accepting a single mechanical TFR extrapolation,
+three demographically motivated TFR trajectories are specified and used to
+produce corresponding birth projections for 2026–2035.
+
+The three scenarios are:
+
+- **Model trend**: TFR continues the fitted ARIMA drift, reaching 0.23 by 2035.
+  This represents an extrapolation of recent trends with no structural break.
+- **Stabilisation**: TFR stabilises at its 2025 level of 0.87, the most
+  optimistic near-term assumption consistent with current policy settings.
+- **Gradual rebound**: TFR recovers slowly to 1.10 by 2035, roughly in line
+  with the government's aspirational target and the upper range of recent
+  policy projections.
+
+```{r}
+#| label: fig-scen-tfr
+#| fig-cap: "Three TFR scenario paths, 2025–2035."
+knitr::include_graphics(file.path(fig_fc, "tfr_scenario_paths.png"))
+```
+
+```{r}
+#| label: fig-scen-births
+#| fig-cap: "Projected live births under three TFR scenarios, 2026–2035."
+knitr::include_graphics(file.path(fig_fc, "birth_scenario_forecasts.png"))
+```
+
+```{r}
+#| label: tbl-scen
+#| tbl-cap: "Projected live births in 2035 under three TFR scenarios"
+scen <- read_csv(file.path(tables_dir, "scenario_endpoint_summary.csv"),
+                 show_col_types = FALSE)
+kable(scen, digits = 0,
+      col.names = c("Scenario", "Year", "TFR assumption",
+                    "Projected births", "Difference from model trend"))
+```
+
+The scenario table shows that even the stabilisation scenario — which holds
+TFR constant at its current (already record-low) level — produces approximately
+37,900 births by 2035, compared with 35,200 under the model-trend extrapolation.
+The gradual-rebound scenario projects roughly 38,900 births. The spread across
+scenarios (approximately 3,700 births) is substantial relative to recent annual
+totals in the low-30,000s range, but all three scenarios remain well below the
+levels Singapore experienced before 2010. The sensitivity analysis highlights
+that, while fertility policy can meaningfully shift the birth trajectory, the
+population dynamics already locked in — a smaller and older cohort of
+childbearing-age women — place a ceiling on achievable short-run birth counts
+regardless of per-woman fertility rates.
+
+The conditional model does not specify the mechanism by which TFR changes, and
+the scenario paths are illustrative rather than probabilistic. Uncertainty bands
+around any particular scenario path would require a fully joint model of TFR
+dynamics and birth dynamics, which is beyond the scope of this analysis.
+
+## Conclusion
+
+This analysis set out to characterise the long-run dynamics of Singapore's
+total fertility rate and live births over 1960–2025, and to assess whether
+conditioning on TFR improves birth forecasts relative to univariate ARIMA
+benchmarks.
+
+On the forecasting question, the answer is a qualified yes: the TFR regression
+model achieves a slightly lower holdout RMSE for log births than the best
+univariate competitor (0.123 versus 0.126). The qualification is important —
+the margin is small, the conditional model receives an informational advantage
+during evaluation (observed holdout TFR values are supplied), and the model
+fails the Ljung–Box residual test, indicating that its prediction intervals
+are too narrow. In practice, a user deploying this model for unconditional
+birth projections would need to first project TFR, reintroducing a source of
+uncertainty that the accuracy comparison suppresses.
+
+The ARIMA(1,1,1) with drift performs strongly for TFR, achieving a holdout
+RMSE of 0.028 versus 0.178 and 0.186 for the competing specifications. The
+drift term is the key driver: it extrapolates the systematic downward trend
+that has characterised Singapore's fertility since the 1960s. The near-unity
+AR coefficient and the KPSS finding that differenced TFR remains non-stationary
+both suggest the series has not yet stabilised around any fixed level, and
+long-run TFR forecasts beyond five years should be treated with substantial
+scepticism.
+
+The scenario analysis adds context beyond the mechanical forecast. Even under
+an optimistic stabilisation assumption, 2035 births remain well below historical
+norms. The demographic headwinds embedded in the current age structure — a
+smaller cohort of women of childbearing age relative to earlier decades —
+constrain birth counts independently of per-woman fertility, a dynamic the
+conditional model captures but that policy-oriented projections sometimes
+underemphasise.
+
+Several limitations should be noted. The data are annual, masking within-year
+seasonality that could be relevant for planning purposes. The birth model's
+residual autocorrelation reflects unmodelled drivers — particularly age-structure
+dynamics, marriage-rate trends, and the subgroup effects identified by Chen
+et al. (2018), who show that 20–29-year-old single women and married childless
+women aged 30–34 are the most elastically influential groups for TFR — that a
+more complete demographic model would incorporate explicitly. Finally, the
+conditional forecasting framework treats TFR as exogenous, whereas in reality
+both series are jointly determined by policy, economic conditions, and social
+norms.
+
+## References
+
+Akaike, H. (1974). A new look at the statistical model identification.
+*IEEE Transactions on Automatic Control*, 19(6), 716–723.
+https://doi.org/10.1109/TAC.1974.1100705
+
+Box, G. E. P., Jenkins, G. M., Reinsel, G. C., & Ljung, G. M. (2015).
+*Time Series Analysis: Forecasting and Control* (5th ed.). Wiley.
+
+Chen, M., Yip, P. S. F., & Yap, M. T. (2018). Identifying the most influential
+groups in determining Singapore's fertility. *Journal of Social Policy*,
+47(1), 139–160. https://doi.org/10.1017/S0047279417000241
+
+Engle, R. F. (1982). Autoregressive conditional heteroscedasticity with
+estimates of the variance of United Kingdom inflation. *Econometrica*,
+50(4), 987–1007. https://doi.org/10.2307/1912773
+
+Engle, R. F., & Granger, C. W. J. (1987). Co-integration and error
+correction: Representation, estimation, and testing. *Econometrica*,
+55(2), 251–276. https://doi.org/10.2307/1913236
+
+Hurvich, C. M., & Tsai, C.-L. (1989). Regression and time series model
+selection in small samples. *Biometrika*, 76(2), 297–307.
+https://doi.org/10.1093/biomet/76.2.297
+
+Hyndman, R. J., & Athanasopoulos, G. (2021). *Forecasting: Principles and
+Practice* (3rd ed.). OTexts. https://otexts.com/fpp3/
+
+Hyndman, R. J., & Khandakar, Y. (2008). Automatic time series forecasting:
+The forecast package for R. *Journal of Statistical Software*, 27(3), 1–22.
+https://doi.org/10.18637/jss.v027.i03
+
+Kwiatkowski, D., Phillips, P. C. B., Schmidt, P., & Shin, Y. (1992).
+Testing the null hypothesis of stationarity against the alternative of a
+unit root. *Journal of Econometrics*, 54(1–3), 159–178.
+https://doi.org/10.1016/0304-4076(92)90104-Y
+
+Lee, R. D., & Carter, L. R. (1992). Modeling and forecasting U.S. mortality.
+*Journal of the American Statistical Association*, 87(419), 659–671.
+https://doi.org/10.2307/2290201
+
+Ljung, G. M., & Box, G. E. P. (1978). On a measure of lack of fit in time
+series models. *Biometrika*, 65(2), 297–303.
+https://doi.org/10.1093/biomet/65.2.297
+
+O'Hara-Wild, M., Hyndman, R. J., Wang, E., & Godahewa, R. (2024).
+*fable: Forecasting Models for Tidy Time Series* (R package version 0.3.4).
+https://CRAN.R-project.org/package=fable
+
+O'Hara-Wild, M., Hyndman, R. J., & Wang, E. (2024). *tsibble: Tidy Temporal
+Data Frames and Tools* (R package version 1.1.5).
+https://CRAN.R-project.org/package=tsibble
+
+R Core Team. (2024). *R: A Language and Environment for Statistical
+Computing* (Version 4.4.0). R Foundation for Statistical Computing.
+https://www.R-project.org/
+
+Shair, S. N., Shaadan, N., Amirudin, N. A. B. M., & A'kashalf, N. A. M.
+(2024). Predictions of Malaysia age-specific fertility rates using the
+Lee-Carter and the functional data approaches. *AIUB Journal of Science and
+Engineering*, 23(1). https://doi.org/10.53799/ajse.v23i1.1024
+
+Singapore Department of Statistics. (2026). *Births and Fertility Rates,
+Annual* [Data set]. data.gov.sg.
+https://data.gov.sg/datasets/d_0b17df3f14ee7e5b5bf0fee3bc0c4782/view
+
+Wang, E., Cook, D., & Hyndman, R. J. (2020). A new tidy data structure to
+support exploration and modeling of temporal data. *Journal of Computational
+and Graphical Statistics*, 29(3), 466–478.
+https://doi.org/10.1080/10618600.2019.1695624

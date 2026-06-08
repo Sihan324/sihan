@@ -45,25 +45,91 @@ readr::write_csv(birth_accuracy, file.path(evaluation_dir, "birth_forecast_accur
 tfr_forecast_plot <- fertility_births |>
   autoplot(tfr) +
   autolayer(tfr_forecasts, alpha = 0.7) +
-  labs(
-    title = "TFR forecasts from candidate ARIMA models",
-    x = "Year",
-    y = "TFR per female"
+  autolayer(
+    test_data,
+    tfr,
+    colour = "black",
+    linewidth = 0.9
   ) +
-  theme_minimal()
+  geom_vline(
+    xintercept = max(train_data$year) + 0.5,
+    linetype = "dashed",
+    colour = "grey45"
+  ) +
+  scale_colour_discrete(
+    name = "Model",
+    labels = c(
+      "Automatic ARIMA",
+      "ARIMA with drift",
+      "ARIMA without drift"
+    )
+  ) +
+  scale_fill_discrete(
+    name = "Model",
+    labels = c(
+      "Automatic ARIMA",
+      "ARIMA with drift",
+      "ARIMA without drift"
+    )
+  ) +
+  labs(
+    title = "TFR holdout forecasts from candidate ARIMA models",
+    subtitle = "Observed 2016-2025 values are overlaid in black",
+    x = "Year",
+    y = "Births per woman"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
 
 birth_forecast_plot <- fertility_births |>
   autoplot(log_total_live_births) +
   autolayer(birth_forecasts, alpha = 0.7) +
-  labs(
-    title = "Log live-birth forecasts from candidate ARIMA models",
-    x = "Year",
-    y = "Log total live-births"
+  autolayer(
+    test_data,
+    log_total_live_births,
+    colour = "black",
+    linewidth = 0.9
   ) +
-  theme_minimal()
+  geom_vline(
+    xintercept = max(train_data$year) + 0.5,
+    linetype = "dashed",
+    colour = "grey45"
+  ) +
+  scale_colour_discrete(
+    name = "Model",
+    labels = c(
+      "Automatic ARIMA",
+      "ARIMA with drift",
+      "ARIMA without drift",
+      "TFR regression"
+    )
+  ) +
+  scale_fill_discrete(
+    name = "Model",
+    labels = c(
+      "Automatic ARIMA",
+      "ARIMA with drift",
+      "ARIMA without drift",
+      "TFR regression"
+    )
+  ) +
+  labs(
+    title = "Log live-birth holdout forecasts",
+    subtitle = "Observed 2016-2025 values are overlaid in black",
+    x = "Year",
+    y = "Log total live births"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "right")
 
 ggsave(file.path(forecast_figure_dir, "tfr_forecasts.png"), tfr_forecast_plot, width = 7, height = 4.5, dpi = 300)
-ggsave(file.path(forecast_figure_dir, "log_births_forecasts.png"), birth_forecast_plot, width = 7, height = 4.5, dpi = 300)
+ggsave(
+  file.path(forecast_figure_dir, "log_births_forecasts.png"),
+  birth_forecast_plot,
+  width = 8.5,
+  height = 4.5,
+  dpi = 300
+)
 
 list(
   tfr_accuracy = tfr_accuracy,

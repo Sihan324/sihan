@@ -30,6 +30,6 @@ These notes separate completed reproducible work from items that still need visu
 
 The next highest-value task is rendering both `.qmd` files and checking the final formatted output. The code, GitHub workflow, audit checks and interpretation caveats are now substantially documented; final submission quality depends mostly on presentation, length and formatting.
 
-As of 2026-06-05, `R/run_all.R` and `scripts/final_submission_check.ps1` have both passed in the local terminal environment. The terminal still does not expose `quarto` on PATH, but the RStudio bundled Quarto executable successfully rendered both `report/final_report.qmd` and `report/statistical_appendix.qmd` to HTML.
+As of 2026-06-06, `R/run_all.R` and `scripts/final_submission_check.ps1` have both passed in the local terminal environment. The terminal still does not expose `quarto` on PATH, but the RStudio bundled Quarto executable successfully rendered both `report/final_report.qmd` and `report/statistical_appendix.qmd` to HTML when run with `R_LIBS_USER=C:/Rlibs/4.4` and `QUARTO_R=C:\Program Files\R\R-4.4.1\bin\R.exe`.
 
-The remaining manual step is visual inspection of the rendered HTML files and, if the course requires it, exporting or printing them to the required submission format.
+The key generated figures were visually inspected after the final rerun. The remaining manual step is to open the rendered HTML files once in the submission browser, confirm any course-specific page or word limit, and export or print them if the course requires PDF, a cover page, or a prescribed filename.

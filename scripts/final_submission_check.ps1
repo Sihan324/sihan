@@ -7,6 +7,29 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Invoke-Git {
+    param([string[]]$Arguments)
+    $repoPath = (Get-Location).Path
+    $previousErrorActionPreference = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        return (& git -c "safe.directory=$repoPath" @Arguments 2>$null)
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
+}
+
+function Get-GitConfigValue {
+    param([string[]]$Arguments)
+    $gitArguments = @("config") + $Arguments
+    $value = Invoke-Git $gitArguments 2>$null
+    if ($LASTEXITCODE -ne 0 -or $null -eq $value) {
+        return ""
+    }
+    return ($value -join "`n").Trim()
+}
+
 function Test-PathNonEmpty {
     param([string]$Path)
     if (-not (Test-Path -LiteralPath $Path)) {
@@ -31,17 +54,23 @@ function Add-Check {
 
 $checks = [System.Collections.Generic.List[object]]::new()
 
-$gitEmail = (git config user.email).Trim()
-$gitName = (git config user.name).Trim()
-$credentialUser = (git config --local credential.username).Trim()
-$remote = (git remote get-url origin).Trim()
+$gitEmail = Get-GitConfigValue @("user.email")
+$gitName = Get-GitConfigValue @("user.name")
+$credentialUser = Get-GitConfigValue @("--local", "credential.username")
+$remote = (Invoke-Git @("remote", "get-url", "origin") 2>$null)
+if ($LASTEXITCODE -ne 0 -or $null -eq $remote) {
+    $remote = ""
+}
+else {
+    $remote = ($remote -join "`n").Trim()
+}
 
 Add-Check $checks "git_email" ($gitEmail -eq $ExpectedEmail) $gitEmail
 Add-Check $checks "git_name" ($gitName -eq "Sihan Zhuang") $gitName
 Add-Check $checks "credential_username" ($credentialUser -eq $ExpectedCredentialUser) $credentialUser
 Add-Check $checks "remote_repository" ($remote -like "*$ExpectedRemoteFragment*") $remote
 
-$status = (git status --short)
+$status = (Invoke-Git @("status", "--short"))
 $workingTreeClean = [string]::IsNullOrWhiteSpace($status)
 Add-Check $checks "working_tree_clean" ($workingTreeClean -or $AllowDirty.IsPresent) (($status -join "; ") -replace "`r?`n", "; ")
 
